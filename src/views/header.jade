@@ -1,0 +1,27 @@
+.navbar.navbar-inverse
+	.navbar-inner
+		.containter
+			a.btn.btn-navbar(data-toggle='collapse',data-target='.nav-collapse')
+				span.icon-bar
+				span.icon-bar
+				span.icon-bar
+			a.brand(href='#') Photo Wall
+			.nav-collapse.collapse
+				ul.nav
+					li.active
+						a(href='#') Home
+					li.dropdown
+						a.dropdown-toggle(data-toggle='dropdown') Option
+							b.caret
+						ul.dropdown-menu
+							li
+								a(href='#') Option 1
+							li
+								a(href='#') Option 2
+					li
+						a(href='#') About
+				form.navbar-search.form-search.pull-right
+					.input-append
+						input.search-query(type='text')
+						button.btn.btn-inverse(type='submit') 
+							i.icon-search.icon-white
