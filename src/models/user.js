@@ -44,9 +44,13 @@ UserSchema.path('email').validate(function(val,cb) {
 	tool.validUnique(this,{email:val},'email',val,mongoose.model('User'),cb);
 },'email must be sth unqiue')
 UserSchema.path('phone').validate(function(val) {
+	if(!this.phone || !this.phone.length)
+		return true
 	return tool.validStr(val,/^\d{11}$/)
 },'phone mustn\'t be empty')
 UserSchema.path('phone').validate(function(val,cb) {
+	if(!this.phone || !this.phone.length)
+		return cb(true)
 	tool.validUnique(this,{phone:val},'phone',val,mongoose.model('User'),cb);
 },'phone must be sth unqiue')
 
