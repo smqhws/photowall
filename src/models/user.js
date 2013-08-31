@@ -6,12 +6,12 @@ var mongoose = require('mongoose'),
 var UserSchema = new Schema({
 	email: {type :String, default: '', trim :true, lowercase: true},
 	password: {type: String,default: '******'},
-	phone: {type :String, default: ''},
 	hash: {type :String, default: ''},
 	salt: {type :String, default: ''},
 	profile: {
 		sex: {type :String, default: ''},
-		birthday: {type :String, default: ''}
+		birthday: {type :String, default: ''},
+		phone: {type :String, default: ''}
 	}
 })
 
@@ -38,24 +38,20 @@ UserSchema.methods={
 }
 
 UserSchema.path('email').validate(function(val) {
-	return tool.validStr(val,/^[a-z0-9A-Z_]+@[a-z0-9A-Z]+(\.[a-z0-9A-Z]+)+$/)
-},'email mustn\'t be empty')
+	return tool.validStr(val,tool.email)
+},'email format error')
 UserSchema.path('email').validate(function(val,cb) {
-	tool.validUnique(this,{email:val},'email',val,mongoose.model('User'),cb);
-},'email must be sth unqiue')
-UserSchema.path('phone').validate(function(val) {
-	if(!this.phone || !this.phone.length)
-		return true
-	return tool.validStr(val,/^\d{11}$/)
-},'phone mustn\'t be empty')
-UserSchema.path('phone').validate(function(val,cb) {
-	if(!this.phone || !this.phone.length)
-		return cb(true)
-	tool.validUnique(this,{phone:val},'phone',val,mongoose.model('User'),cb);
+	tool.validUnique(this,'email',val,mongoose.model('User'),cb);
+},'email must be unqiue')
+UserSchema.path('profile.phone').validate(function(val) {
+	return tool.validNotEmpty(val)?tool.validStr(val,tool.phone):true
+},'phone format error')
+UserSchema.path('profile.phone').validate(function(val,cb) {
+	tool.validNotEmpty(val)?tool.validUnique(this,'profile.phone',val,mongoose.model('User'),cb):cb(true);
 },'phone must be sth unqiue')
 
 function validPassword(val){
-	return tool.validStr(val,/^[a-z0-9A-Z_]{6,12}$/)
+	return tool.validStr(val,tool.password)
 }
 
 UserSchema.pre('save',function(next){

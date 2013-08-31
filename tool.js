@@ -1,27 +1,44 @@
-var validStr = exports.validStr = function (str,reg){
-	if(!str || !str.length)
-		return false
-	if(reg)
-		return str.match(reg)
-	return true;
-}
-
-var validUnique = exports.validUnique = function (self,obj,key,val,Model,cb){
-	if(!self.isNew && !self.isModified(key))
-		return cb(true)
-	Model.find(obj,function (err,docs){
-		cb(!err && docs.length === 0)
-	})
-}
-
-var getErrMsg = exports.getErrMsg =function(err){
-	var res = [],
-		count = 0
-	for(var i in err.errors){
-		var e = {}
-		e.path = i
-		e.message = err.errors[i].type
-		res[count++] = e
+module.exports={
+	email : /^[a-z0-9A-Z_]+@[a-z0-9A-Z]+(\.[a-z0-9A-Z]+)+$/,
+	phone : /^\d{11}$/,
+	password : /^[a-z0-9A-Z_]{6,12}$/,
+	validNotEmpty : function (str) {
+		return str && str.length
+	},
+	validStr : function (str,reg){
+		if(!str || !str.length)
+			return false
+		if(reg)
+			return str.match(reg)
+		return true;
+	},
+	validUnique : function (self,key,val,Model,cb){
+		if(!self.isNew && !self.isModified(key))
+			return cb(true)
+		obj = {}
+		obj[key] = val;
+		Model.find(obj,function (err,docs){
+			cb(!err && docs.length === 0)
+		})
+	},
+	isAuthenticated : function(req,res,next){
+		if(req.isAuthenticated())
+			next()
+		else{
+			req.flash('error','Must log in')
+			res.redirect('/user/login')
+		}
+	},
+	getErrMsg : function(err){
+		if(!err)
+			return []
+		var emsg = []
+		var i = 0
+		var errs=err.errors
+		for(var e in errs){
+			emsg[i++]=errs[e].type
+		}
+		return emsg
 	}
-	return res
+
 }

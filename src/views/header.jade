@@ -20,8 +20,15 @@
 								a(href='#') Option 2
 					li
 						a(href='#') About
+				ul.nav.pull-right
+					li
+						-if(isAuth)
+							a(href='/user/logout') Logout
+						-else
+							a(href='/user/login') login
 				form.navbar-search.form-search.pull-right
 					.input-append
 						input.search-query(type='text')
 						button.btn.btn-inverse(type='submit') 
 							i.icon-search.icon-white
+				
