@@ -18,9 +18,9 @@ module.exports={
 			msg[i++] = 'email can not be empty'
 		if(!tool.validNotEmpty(req.param('password')))
 			msg[i++] = 'password can not be emtpy'
-		if(!tool.validStr(req.param('email')))
+		if(!tool.validStr(req.param('email'),tool.email))
 			msg[i++] = 'email format error'
-		if(!tool.validStr(req.param('password')))
+		if(!tool.validStr(req.param('password'),tool.password))
 			msg[i++] = 'password format error'
 		if(msg.length){
 			req.flash('error',msg)
