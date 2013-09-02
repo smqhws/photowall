@@ -1,4 +1,3 @@
-
 /**
  * Module dependencies.
  */
@@ -28,11 +27,11 @@ app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.cookieParser());
 app.use(express.session({
-	secret: 'david_phonewall',
-	store: new mongoStore({
-		url: connectString,
-		collection : 'sessions'
-	})
+    secret: 'david_phonewall',
+    store: new mongoStore({
+        url: connectString,
+        collection: 'sessions'
+    })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -43,10 +42,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
 if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
+    app.use(express.errorHandler());
 }
-
-
 
 
 
@@ -57,80 +54,88 @@ var tool = require('./tool')
 var User = mongoose.model('User')
 
 passport.serializeUser(function(user, done) {
-  done(null, user.id);
+    done(null, user.id);
 });
 
 passport.deserializeUser(function(id, done) {
-	User.findById(id, function (err, user) {
-		done(err, user);
-	});
+    User.findById(id, function(err, user) {
+        done(err, user);
+    });
 });
 
 passport.use(new LocalStrategy({
-	usernameField:'email',
-	passwordField:'password'
-},function(email, password, done) {
-	User.findOne({ email: email }, function(err, user) {
-	    if (err) { return done(err) }
-		if (!user) { return done(null, false, { message: 'This email:' + email +'has not be signed up'}); }
-		if(!user.authenticate(password)){
-			return done(null,false,{message:'Wrong password'})
-		} else {
-			return done(null, user)
-		}
-	})
+    usernameField: 'email',
+    passwordField: 'password'
+}, function(email, password, done) {
+    User.findOne({
+        email: email
+    }, function(err, user) {
+        if (err) {
+            return done(err)
+        }
+        if (!user) {
+            return done(null, false, {
+                message: 'This email : ' + email + ' has not be signed up'
+            });
+        }
+        if (!user.authenticate(password)) {
+            return done(null, false, {
+                message: 'Wrong password'
+            })
+        } else {
+            return done(null, user)
+        }
+    })
 }))
 ////////////////////////////////////////////////////
 
 app.get('/user/signup', user.signup)
-app.post('/user/signup',user.validCreate,user.create)
-app.get('/user/login',user.login)
-app.post('/user/login',
-	passport.authenticate('local', { 
-		successRedirect: '/user/test',
-		failureRedirect: '/user/login' ,
-		failureFlash: true
-	})
+app.post('/user/signup', user.validCreate, user.create)
+app.get('/user/login', user.login)
+app.post('/user/login',user.validLogin,
+    passport.authenticate('local', {
+        successRedirect: '/user/test',
+        failureRedirect: '/user/login',
+        failureFlash: true
+    })
 )
-app.get('/user/logout',user.logout)
-app.get('/user/test',tool.isAuthenticated,user.test)
+app.get('/user/logout', user.logout)
+app.get('/user/test', tool.isAuthenticated, user.test)
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+http.createServer(app).listen(app.get('port'), function() {
+    console.log('Express server listening on port ' + app.get('port'));
 });
 
 
 
-
-
-
 new User({
-	email:'ads@adsf.com',
-	password:'1234567',
-	profile:{
-		birthday:'2121'
-	}
-}).save(function (err,user){
-	if(err)
-		console.log(err)
-	else
-		console.log(user)
+    email: 'ads@adsf.com',
+    password: '1234567',
+    profile: {
+        birthday: '2121'
+    }
+}).save(function(err, user) {
+    if (err)
+        console.log(err)
+    else
+        console.log(user)
 })
 
-User.findOne({phone:'18500231447'},function (err,doc){
-	if(err)
-		console.log(err)
-	else if(doc){
-		doc.password='123321'
-		doc.save(function(err,doc){
-			if(err)
-				console.log(err)
-			else{ 
-				console.log(doc)
-				console.log(doc.authenticate('1111111'))
-			}
-		})
-	}
-		
-})
+User.findOne({
+    phone: '18500231447'
+}, function(err, doc) {
+    if (err)
+        console.log(err)
+    else if (doc) {
+        doc.password = '123321'
+        doc.save(function(err, doc) {
+            if (err)
+                console.log(err)
+            else {
+                console.log(doc)
+                console.log(doc.authenticate('1111111'))
+            }
+        })
+    }
 
+})

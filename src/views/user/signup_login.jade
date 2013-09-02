@@ -1,22 +1,20 @@
 extends ../layout
 
 block title
-	title= title
+    title= title
 block content
-	form.form-horizontal(action=action,method='post')
-		.control-group
-			label.control-label(for='email')	Email
-			.controls
-				input#email(type='text',placeHolder="Email",name='email')
-		.control-group
-			label.control-label	Password
-			.controls
-				input#password(type='password',placeHolder='password',name='password')
-		.control-group	
-			.controls
-				button.btn(type='submit')= submitBtn
-//
-	.fade.in.alert.alert-error
-		button.close(type='button',data-dismiss='alert') &times;
-		!= '<strong>Error!</strong>'+ errs.email.type
+    .row
+        .span8.offset2
+            form.form-horizontal(action=action,method='post')
+                .control-group
+                    label.control-label(for='email')	Email
+                    .controls
+                        input#email(type='text',placeHolder="Email",name='email')
+                .control-group
+                    label.control-label	Password
+                    .controls
+                        input#password(type='password',placeHolder='password',name='password')
+                .control-group
+                    .controls
+                        button.btn(type='submit')= submitBtn
 block script
