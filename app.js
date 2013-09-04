@@ -1,20 +1,27 @@
 /**
  * Module dependencies.
  */
-
+//without dependency
 var express = require('express');
-//var ctrls = require('./src/controllers')
-var user = require('./src/controllers/user')
 var http = require('http');
 var path = require('path');
-
-var tool = require('./tool')
 var mongoStore = require('connect-mongo')(express)
 var connectString = 'mongodb://localhost/photowall'
 var mongoose = require('mongoose')
 mongoose.connect(connectString)
 var passport = require('passport')
 var flash = require('connect-flash')
+var tool = require('./tool')
+var check = require('./validator').check
+
+//depend on sth
+require('./src/models/photo')(mongoose,tool)
+require('./src/models/user')(mongoose,tool)
+var User = mongoose.model('User')
+var Photo = mongoose.model('Photo')
+//var photo = require('./src/controllers/photo')(tool,check,Photo)
+var user = require('./src/controllers/user')(tool,check,User)
+
 
 var app = express();
 
@@ -47,37 +54,15 @@ if ('development' == app.get('env')) {
 }
 
 
-require('./config/passport')
+require('./config/passport')(passport, User)
+require('./config/route')(app, passport,tool,user)
 
-app.get('/user/signup', user.signup)
-app.post('/user/signup', user.validCreate, user.create)
-app.get('/user/login', user.login)
-app.post('/user/login', user.validLogin,
-    passport.authenticate('local', {
-        successRedirect: '/user/test',
-        failureRedirect: '/user/login',
-        failureFlash: true
-    })
-)
-app.get('/user/baidu', passport.authenticate('baidu'))
-app.get('/user/baidu/callback',
-    passport.authenticate('baidu', {
-        failureRedirect: '/login',
-        successRedirect: '/user/test',
-        failureFlash: true
-    })
-)
-app.get('/user/logout', user.logout)
-app.get('/user/test', tool.isAuthenticated, user.test)
 
 http.createServer(app).listen(app.get('port'), function() {
     console.log('Express server listening on port ' + app.get('port'));
 });
 
-require('./src/models/user')
-require('./src/models/photo')
-var User = mongoose.model('User')
-var Photo = mongoose.model('Photo')
+
 
 // new Photo({
 //     title: 'test1',
