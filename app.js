@@ -8,6 +8,7 @@ var user = require('./src/controllers/user')
 var http = require('http');
 var path = require('path');
 
+var tool = require('./tool')
 var mongoStore = require('connect-mongo')(express)
 var connectString = 'mongodb://localhost/photowall'
 var mongoose = require('mongoose')
@@ -46,56 +47,23 @@ if ('development' == app.get('env')) {
 }
 
 
-
-//////////////////////////////////////////////////
-var LocalStrategy = require('passport-local').Strategy
-require('./src/models/user')
-var tool = require('./tool')
-var User = mongoose.model('User')
-
-passport.serializeUser(function(user, done) {
-    done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-    User.findById(id, function(err, user) {
-        done(err, user);
-    });
-});
-
-passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password'
-}, function(email, password, done) {
-    User.findOne({
-        email: email
-    }, function(err, user) {
-        if (err) {
-            return done(err)
-        }
-        if (!user) {
-            return done(null, false, {
-                message: 'This email : ' + email + ' has not be signed up'
-            });
-        }
-        if (!user.authenticate(password)) {
-            return done(null, false, {
-                message: 'Wrong password'
-            })
-        } else {
-            return done(null, user)
-        }
-    })
-}))
-////////////////////////////////////////////////////
+require('./config/passport')
 
 app.get('/user/signup', user.signup)
 app.post('/user/signup', user.validCreate, user.create)
 app.get('/user/login', user.login)
-app.post('/user/login',user.validLogin,
+app.post('/user/login', user.validLogin,
     passport.authenticate('local', {
         successRedirect: '/user/test',
         failureRedirect: '/user/login',
+        failureFlash: true
+    })
+)
+app.get('/user/baidu', passport.authenticate('baidu'))
+app.get('/user/baidu/callback',
+    passport.authenticate('baidu', {
+        failureRedirect: '/login',
+        successRedirect: '/user/test',
         failureFlash: true
     })
 )
@@ -106,7 +74,42 @@ http.createServer(app).listen(app.get('port'), function() {
     console.log('Express server listening on port ' + app.get('port'));
 });
 
+require('./src/models/user')
+require('./src/models/photo')
+var User = mongoose.model('User')
+var Photo = mongoose.model('Photo')
 
+// new Photo({
+//     title: 'test1',
+//     path: '\\',
+//     addedBy: '5221925034c0ec8e48000002'
+// }).save(function(err, doc) {
+//     if (err)
+//         console.log(err)
+//     else
+//         Photo.find({
+//             title: 'test1'
+//         }).populate('addedBy', 'email').exec(function(err, docs) {
+//             if (err)
+//                 console.log(err)
+//             if (docs.length)
+//                 console.log(docs)
+//         })
+// })
+Photo.findOne({
+    title: 'test1'
+}).populate('addedBy', 'email').exec(function(err, doc) {
+    if (err)
+        console.log(err)
+    if (doc) {
+        doc.save(function(err, doc) {
+            if (err)
+                console.log(err)
+            if (doc)
+                console.log(doc)
+        })
+    }
+})
 
 new User({
     email: 'ads@adsf.com',
@@ -118,24 +121,22 @@ new User({
     if (err)
         console.log(err)
     else
-        console.log(user)
-})
-
-User.findOne({
-    phone: '18500231447'
-}, function(err, doc) {
-    if (err)
-        console.log(err)
-    else if (doc) {
-        doc.password = '123321'
-        doc.save(function(err, doc) {
+        User.findOne({
+            email: 'ads@adsf.com'
+        }, function(err, doc) {
             if (err)
                 console.log(err)
-            else {
-                console.log(doc)
-                console.log(doc.authenticate('1111111'))
+            else if (doc) {
+                doc.password = '123321'
+                doc.save(function(err, doc) {
+                    if (err)
+                        console.log(err)
+                    else {
+                        console.log(doc)
+                        console.log(doc.authenticate('1111111'))
+                    }
+                })
             }
-        })
-    }
 
+        })
 })

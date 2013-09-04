@@ -4,8 +4,10 @@ block title
     title= title
 block content
     .row
-        .span8.offset2
+        .span6
             form.form-horizontal(action=action,method='post')
+                .control-group
+                    label.control-label With a local account
                 .control-group
                     label.control-label(for='email')	Email
                     .controls
@@ -17,4 +19,15 @@ block content
                 .control-group
                     .controls
                         button.btn(type='submit')= submitBtn
+        -if(submitBtn==='Log in')
+            .span4.offset1
+                form.form-horizontal
+                    .control-group
+                        label.control-label With a social account
+                    .row
+                        a.btn.span1(href='baidu') Baidu
+                        a.btn.span1(href='#') Tencent
+                    .row
+                        a.btn.span1(href='#') Weibo
+                        a.btn.span1(href='#') Renren
 block script

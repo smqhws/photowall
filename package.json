@@ -13,7 +13,9 @@
         "connect-mongo": "latest",
         "passport": "latest",
         "passport-local": "latest",
+        "passport-baidu": "latest",
         "nodemon": "latest",
-        "connect-flash": "latest"
+        "connect-flash": "latest",
+        "imager": "latest"
     }
 }

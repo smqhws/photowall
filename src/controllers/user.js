@@ -61,6 +61,7 @@ module.exports = {
         req.logout()
         res.redirect('/user/login')
     },
+
     test: function(req, res) {
         res.render('user/test', {
             title: 'test',

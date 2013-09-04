@@ -10,10 +10,10 @@ module.exports = {
         return true;
     },
     len:function(str,min,max){
-        if(!min || !str || typeof(min)!==Number || !str.length||str.length<min)
+        if(!str || typeof(min)!='number' || !str.length||str.length<min)
             return false
-        if(max&&typeof(max)===Number )
-            return str.lengthz<max
+        if(typeof(max)=='number' )
+            return str.length<max
         return true
     },
     isUnique: function(self, key, val, Model, cb) {

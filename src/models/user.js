@@ -22,6 +22,11 @@ var mongoose = require('mongoose'),
             type: String,
             default: ''
         },
+        provider: {
+            type: String,
+            default: ''
+        },
+        baidu: {},
         profile: {
             sex: {
                 type: String,
