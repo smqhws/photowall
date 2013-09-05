@@ -1,6 +1,8 @@
-module.exports = function(mongoose, tool) {
+module.exports = function(mongoose, tool, imager) {
     var Schema = mongoose.Schema
-
+    var fs = require('fs')
+    var path = require('path')
+    var OtherError = require('../../error').OtherError
     var PhotoSchema = new Schema({
         title: {
             type: String,
@@ -99,6 +101,27 @@ module.exports = function(mongoose, tool) {
         if (!this.isNew)
             this.lastModifiedDate = Date.now()
         next()
+    })
+    PhotoSchema.method('uploadAndSave', function(file, cb) {
+        var self = this
+        var tempPath = file.path
+        var ext = path.extname(file.name).toLowerCase()
+        var targetPath = path.resolve(tempPath+ext)
+        if (ext === '.jpg')
+            fs.rename(tempPath, targetPath, function(err) {
+                if (err) {
+                    return cb(new OtherError('Can\'t save image'))
+                } else {
+                    self.path = targetPath
+                    self.save(cb)
+                }
+            })
+        else {
+            fs.unlink(tempPath, function(err) {
+                if (err) console.log(tempPath + 'can not be deleted')
+                cb(new OtherError('Only jpg image is allowed'))
+            })
+        }
     })
     mongoose.model('Photo', PhotoSchema)
 }

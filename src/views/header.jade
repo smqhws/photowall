@@ -11,24 +11,17 @@
                     li.active
                         a(href='#') Home
                     li.dropdown
-                        a.dropdown-toggle(data-toggle='dropdown') Option
+                        a.dropdown-toggle(data-toggle='dropdown') Photo
                             b.caret
                         ul.dropdown-menu
                             li
-                                a(href='#') Option 1
+                                a(href='/photo/new') New
                             li
                                 a(href='#') Option 2
                     li
                         a(href='#') About
                 ul.nav.pull-right
-                    -if(isAuth)
-                        li
-                            a(href='/user/logout') Log out
-                    -else
-                        li
-                            a(href='/user/login') Log in
-                        li
-                            a(href='/user/signup') Sign up
+                    block status
                 form.navbar-search.form-search.pull-right
                     .input-append
                         input.search-query(type='text')

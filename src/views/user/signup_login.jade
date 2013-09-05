@@ -2,32 +2,33 @@ extends ../layout
 
 block title
     title= title
+block status
+    include ../logoutStatus
 block content
     .row
         .span6
             form.form-horizontal(action=action,method='post')
-                .control-group
-                    label.control-label With a local account
-                .control-group
-                    label.control-label(for='email')	Email
-                    .controls
+                fieldset
+                        legend With a local account
+
                         input#email(type='text',placeHolder="Email",name='email')
-                .control-group
-                    label.control-label	Password
-                    .controls
+                        span.help-block
+
                         input#password(type='password',placeHolder='password',name='password')
-                .control-group
-                    .controls
+                        span.help-block
+
                         button.btn(type='submit')= submitBtn
         -if(submitBtn==='Log in')
-            .span4.offset1
+            .span6
                 form.form-horizontal
-                    .control-group
-                        label.control-label With a social account
-                    .row
-                        a.btn.span1(href='baidu') Baidu
-                        a.btn.span1(href='#') Tencent
-                    .row
-                        a.btn.span1(href='#') Weibo
-                        a.btn.span1(href='#') Renren
+                    fieldset
+                        legend With a social account
+                        .row
+                            a.btn.span1(href='baidu') Baidu
+                            a.btn.span1(href='#') Tencent
+                        .row
+                            p   
+                        .row
+                            a.btn.span1(href='#') Weibo
+                            a.btn.span1(href='#') Renren
 block script

@@ -37,12 +37,19 @@ module.exports = {
         if (!err)
             return []
         var emsg = []
-        var i = 0
-        var errs = err.errors
-        for (var e in errs) {
-            emsg[i++] = errs[e].type
+        if(err.errors){
+            var errs = err.errors
+            for (var e in errs) {
+                emsg[emsg.length] = errs[e].type
+            }
         }
+        else if(err.message)
+            emsg[emsg.length]=err.message
         return emsg
+    },
+    render:function(req,res,page,obj){
+        obj.error=req.flash('error')
+        res.render(page,obj)
     }
 
 }

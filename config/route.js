@@ -1,4 +1,4 @@
-module.exports = function(app, passport,tool,user) {
+module.exports = function(app, passport,tool,user,photo) {
     app.get('/user/signup', user.signup)
     app.post('/user/signup', user.validCreate, user.create)
     app.get('/user/login', user.login)
@@ -19,4 +19,7 @@ module.exports = function(app, passport,tool,user) {
     )
     app.get('/user/logout', user.logout)
     app.get('/user/test', tool.isAuthenticated, user.test)
+
+    app.get('/photo/new',tool.isAuthenticated,photo.add)
+    app.post('/photo/new',tool.isAuthenticated,photo.save)
 }

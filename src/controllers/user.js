@@ -1,12 +1,11 @@
 module.exports = function(tool, check, User) {
+    var render=tool.render
     result = {
         signup: function(req, res) {
-            res.render('user/signup_login', {
+            render(req,res,'user/signup_login', {
                 title: 'Sign up',
                 submitBtn: 'Sign up',
-                action: 'signup',
-                isAuth: false,
-                error: req.flash('error')
+                action: 'signup'
             })
         },
         validCreate: function(req, res, next) {
@@ -37,12 +36,10 @@ module.exports = function(tool, check, User) {
             })
         },
         login: function(req, res) {
-            res.render('user/signup_login', {
+            render(req,res,'user/signup_login', {
                 title: 'Log in',
                 submitBtn: 'Log in',
-                action: 'login',
-                isAuth: false,
-                error: req.flash('error')
+                action: 'login'
             })
         },
         validLogin: function(req, res, next) {

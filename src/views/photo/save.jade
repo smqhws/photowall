@@ -1,0 +1,21 @@
+extends ../layout
+
+block title
+    title= title
+block status
+    include ../loginStatus
+block content
+    .row
+        .span8.offset2
+            form.form-horizontal(enctype="multipart/form-data",action=action,method='post')
+                fieldset
+                    legend Upload an image
+                    input#title.input-block-level(type='text',placeHolder="Title",name='title')
+                    span.help-block
+                    textarea#desc.input-block-level(rows='4',placeHolder='Add description here',name='desc')
+                    span.help-block
+                    .input-append
+                        input#image.filestyle(type='file',name='image',data-classButton='btn')
+                    span.help-block
+                    button.btn(type='submit') OK
+block script
