@@ -10,12 +10,21 @@ block content
             form.form-horizontal(enctype="multipart/form-data",action=action,method='post')
                 fieldset
                     legend Upload an image
+                    .fileupload.fileupload-new.text-center(data-provides='fileupload')
+                        .fileupload-new.thumbnail( style="width: 240px; height: 320px;")
+                            img(src="http://www.placehold.it/240x320/EFEFEF/AAAAAA&text=no+image")
+                        .fileupload-preview.fileupload-exists.thumbnail(style="max-width: 800px; max-height: 480px; line-height: 20px;")
+                        div
+                            span.btn.btn-file
+                                span.fileupload-new Browse
+                                span.fileupload-exists Change
+                                input(type='file',name='image')
+                            a.btn.fileupload-exists(href='#',data-dismiss='fileupload') Remove
+                    span.help-block
                     input#title.input-block-level(type='text',placeHolder="Title",name='title')
                     span.help-block
                     textarea#desc.input-block-level(rows='4',placeHolder='Add description here',name='desc')
                     span.help-block
-                    .input-append
-                        input#image.filestyle(type='file',name='image',data-classButton='btn')
-                    span.help-block
+                    
                     button.btn(type='submit') OK
 block script

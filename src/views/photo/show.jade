@@ -1,0 +1,21 @@
+extends ../layout
+
+block title
+    title= title
+block status
+    include ../loginStatus
+block content
+    ul
+        li
+            img(src=photo.getUri())
+        li= photo.title
+        li= photo.desc
+
+
+
+
+
+
+
+
+block script

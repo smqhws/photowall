@@ -1,0 +1,20 @@
+extends ../layout
+
+block title
+    title= title
+block status
+    include ../loginStatus
+block content
+    ul
+        -for(var i in photos)
+            li
+                a(href='photo/'+photos[i]._id)= photos[i].title
+
+
+
+
+
+
+
+
+block script

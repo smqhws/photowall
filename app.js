@@ -29,6 +29,8 @@ var user = require('./src/controllers/user')(tool, check, User)
 
 var app = express();
 
+
+
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/src/views');

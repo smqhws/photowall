@@ -27,6 +27,10 @@ module.exports = function(mongoose, tool) {
         },
         baidu: {},
         profile: {
+            name:{
+                type:String,
+                default:''
+            },
             sex: {
                 type: String,
                 default: ''
