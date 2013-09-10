@@ -42,6 +42,10 @@ module.exports = function(mongoose, tool) {
             phone: {
                 type: String,
                 default: ''
+            },
+            path:{
+                type:String,
+                default:''
             }
         }
     })
@@ -64,6 +68,15 @@ module.exports = function(mongoose, tool) {
         },
         authenticate: function(password) {
             return this.encryptPassword(password) === this.hash
+        },
+        getUri:function(){
+            return tool.getUri(this,'profile.path')
+        },
+        uploadAndSave:function(file,cb){
+            return tool.uploadAndSave(this,'profile.path',file,cb)
+        },
+        getName:function(){
+            return this.profile.name || this.email
         }
     }
 
@@ -96,6 +109,20 @@ module.exports = function(mongoose, tool) {
             next()
         }
     })
+    UserSchema.statics={
+        list:function(obj,cb){
+            var where = obj.where || {}
+            var sort = obj.sort || {
+                'email':1,
+                'profile.name':1
+            }
 
+            this.find(where)
+                .sort(sort)
+                .limit(obj.pageSize)
+                .skip(obj.pageSize * obj.pageIndex)
+                .exec(cb)
+        }
+    }
     mongoose.model('User', UserSchema)
 }

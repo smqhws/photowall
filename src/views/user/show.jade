@@ -1,0 +1,22 @@
+extends ../layout
+
+block title
+    title= title
+block status
+    include ../loginStatus
+block content
+    ul
+        - for(var i in user.profile)
+            - if(user.profile[i] && typeof(user.profile[i])==='string')
+                li
+                    -if (i === 'path')
+                        img(src=user.getUri())
+                    - else
+                        = user.profile[i]
+        li
+            a.btn(href=user._id+'/edit') Edit
+
+
+
+
+block script

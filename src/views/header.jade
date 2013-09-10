@@ -6,7 +6,7 @@
                 span.icon-bar
                 span.icon-bar
             a.brand(href='#') Photo Wall
-            .nav-collapse.collapse
+            #navbar.nav-collapse.collapse
                 ul.nav
                     li.active
                         a(href='/photo') Home
@@ -15,9 +15,11 @@
                             b.caret
                         ul.dropdown-menu
                             li
-                                a(href='/photo/new') New
+                                a(href='/photo') All
                             li
-                                a(href='#') Option 2
+                                a(href='/photo/add') New
+                    li
+                        a(href='/user') User
                     li
                         a(href='#') About
                 ul.nav.pull-right

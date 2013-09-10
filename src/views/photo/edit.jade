@@ -1,0 +1,38 @@
+extends ../layout
+
+block title
+    title= title
+block status
+    include ../loginStatus
+block content
+    .row
+        .span8.offset2
+            form.form-horizontal(enctype="multipart/form-data",action=action,method='post')
+                fieldset
+                    legend Upload an image
+                    - if (!photo.isNew)
+                        input(type="hidden", name="_method", value="PUT")
+                    mixin fileupload
+                        .fileupload-new.thumbnail( style="width: 240px; height: 320px;")
+                            img(src="http://www.placehold.it/240x320/EFEFEF/AAAAAA&text=no+image")
+                        div
+                            span.btn.btn-file
+                                span.fileupload-new Browse
+                                span.fileupload-exists Change
+                                input(type='file')
+                            a.btn.fileupload-exists(href='#',data-dismiss='fileupload') Remove
+                    - if(photo.isNew)
+                        .fileupload.fileupload-new.text-center(data-provides='fileupload',data-name='image')
+                            .fileupload-preview.fileupload-exists.thumbnail(style="max-width: 800px; max-height: 480px; line-height: 20px;")
+                            +fileupload
+                    -else
+                        .fileupload.fileupload-exists.text-center(data-provides='fileupload',data-name='image')
+                            .fileupload-preview.fileupload-exists.thumbnail(style="max-width: 800px; max-height: 480px; line-height: 20px;")
+                                img(src=photo.getUri())
+                            +fileupload
+                    textarea#desc.input-block-level(rows='4',placeHolder='Add description here',name='desc')
+                        = photo.desc
+                    span.help-block
+                    
+                    button.btn(type='submit') OK
+block script

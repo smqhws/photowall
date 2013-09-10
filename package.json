@@ -16,6 +16,9 @@
         "passport-baidu": "latest",
         "nodemon": "latest",
         "connect-flash": "latest",
-        "imager": "latest"
+        "imager": "latest",
+        "underscore":"latest",
+        "thumbbot":"latest",
+        "image-size":"latest"
     }
 }

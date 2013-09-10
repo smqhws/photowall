@@ -1,13 +1,16 @@
-module.exports = function(tool, check, Photo) {
+module.exports = function(tool, Photo) {
     var render = tool.render
+    var _ = tool._
+    var check = tool.check
     result = {
         add: function(req, res) {
-            render(req, res, 'photo/save', {
+            render(req, res, 'photo/edit', {
                 title: 'New Image',
-                action: 'new'
+                action: '/photo',
+                photo: new Photo()
             })
         },
-        save: function(req, res) {
+        create: function(req, res) {
             var p = new Photo(req.body)
             p.addedBy = req.user.id
             p.uploadAndSave(req.files.image, function(err, doc) {
@@ -16,12 +19,51 @@ module.exports = function(tool, check, Photo) {
                     req.flash('error', tool.getErrMsg(err))
                     res.redirect('/photo/new')
                 } else {
-                    res.redirect('/photo/'+p._id)
+                    res.redirect('/photo/' + p._id)
                 }
             })
         },
-        load: function(req, res, next, id) {
-            Photo.load(id, function(err, doc) {
+        edit: function(req, res) {
+            render(req, res, 'photo/edit', {
+                title: 'Edit Image',
+                action: '/photo/' + req.photo._id,
+                photo: req.photo
+            })
+        },
+        update: function(req, res) {
+            var p = req.photo
+            _.extend(p, req.body)
+            p.uploadAndSave(req.files.image, function(err, doc) {
+                if (err) {
+                    console.log(err)
+                    req.flash('error', tool.getErrMsg(err))
+                    res.redirect('/photo/' + p._id + '/edit')
+                } else {
+                    res.redirect('/photo/' + p._id)
+                }
+            })
+        },
+        list: function(req, res) {
+            tool.list(req, res, Photo, tool.getListOpt(req), 'photo/list', 'Photos')
+        },
+        listByUser: function(req, res) {
+            var obj = tool.getListOpt(req, {
+                where: {
+                    addedBy: req.otheruser._id
+                }
+            })
+            tool.list(req, res, Photo, obj, 'photo/list', req.otheruser.getName(), {
+                user: req.otheruser
+            })
+        },
+        show: function(req, res) {
+            render(req, res, 'photo/show', {
+                title: req.photo.title,
+                photo: req.photo,
+            })
+        },
+        load: function(req, res, next, photoId) {
+            Photo.load(photoId, function(err, doc) {
                 if (err) {
                     console.log(err)
                     req.flash('error', tool.getErrMsg(err))
@@ -30,30 +72,6 @@ module.exports = function(tool, check, Photo) {
                     req.photo = doc
                     next()
                 }
-            })
-        },
-        list: function(req, res) {
-            var pageIndex = (req.param('pageIndex') > 0 ? req.param('pageIndex') : 1) - 1
-            var obj = {
-                pageIndex: pageIndex,
-                pageSize: 30
-            }
-            Photo.list(obj, function(err, docs) {
-                if (err) return res.render('500')
-                Photo.count().exec(function(err, count) {
-                    render(req, res, 'photo/list', {
-                        title: 'Photos',
-                        photos: docs,
-                        pageIndex: pageIndex + 1,
-                        pageCount: Math.ceil(count / 30)
-                    })
-                })
-            })
-        },
-        show: function(req, res) {
-            render(req, res, 'photo/show', {
-                title: req.photo.title,
-                photo: req.photo
             })
         }
     }

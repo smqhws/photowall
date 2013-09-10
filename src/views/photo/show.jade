@@ -8,8 +8,10 @@ block content
     ul
         li
             img(src=photo.getUri())
-        li= photo.title
         li= photo.desc
+        li= photo.addedBy.profile.name
+        li
+            a.btn(href=photo._id+'/edit') edit
 
 
 

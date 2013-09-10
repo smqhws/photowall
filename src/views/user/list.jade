@@ -1,0 +1,24 @@
+extends ../layout
+
+block title
+    title= title
+block status
+    include ../loginStatus
+block content
+    ul
+        -for(var i in objs)
+            li
+                ul
+                    li
+                        a(href='user/'+objs[i]._id)= objs[i].getName()
+                    li
+                        a(href='/user/photo/'+objs[i]._id)= objs[i].getName()+"'s photos"
+
+
+
+
+
+
+
+
+block script

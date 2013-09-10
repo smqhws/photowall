@@ -6,9 +6,10 @@ block status
     include ../loginStatus
 block content
     ul
-        -for(var i in photos)
+        -for(var i in objs)
             li
-                a(href='photo/'+photos[i]._id)= photos[i].title
+                a(href='photo/'+objs[i]._id)
+                    img(src=objs[i].getUri())
 
 
 

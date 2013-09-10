@@ -1,0 +1,52 @@
+extends ../layout
+
+block title
+    title= title
+block link
+    link(rel='stylesheet',href='/css/bootstrap-datetimepicker.min.css')
+block status
+    include ../logoutStatus
+block content
+    .row
+        .span4.offset2
+            form.form-horizontal(enctype="multipart/form-data",action='/user/'+user._id,method='post')
+                fieldset
+                    legend User Profile
+                    input(type="hidden", name="_method", value="PUT")
+                    mixin fileupload
+                        .fileupload-new.thumbnail( style="width: 150px; height: 150px;")
+                            img(src="http://www.placehold.it/150x150/EFEFEF/AAAAAA&text=no+image")
+                        div
+                            span.btn.btn-file
+                                span.fileupload-new Browse
+                                span.fileupload-exists Change
+                                input(type='file')
+                            a.btn.fileupload-exists(href='#',data-dismiss='fileupload') Remove
+                    - if(!user.profile.path)
+                        .fileupload.fileupload-new.text-center(data-provides='fileupload',data-name='image')
+                            .fileupload-preview.fileupload-exists.thumbnail(style="max-width: 800px; max-height: 480px; line-height: 20px;")
+                            +fileupload
+                    -else
+                        .fileupload.fileupload-exists.text-center(data-provides='fileupload',data-name='image')
+                            .fileupload-preview.fileupload-exists.thumbnail(style="max-width: 800px; max-height: 480px; line-height: 20px;")
+                                img(src=user.getUri())
+                            +fileupload
+                    input(type='text',placeHolder='Name',name='name',value=user.profile.name)
+                    span.help-block
+                    lable.radio Male
+                        input(type='radio',name='sex',value='male',checked=user.profile.sex==='male')
+                    span.help-block
+                    lable.radio Female
+                        input(type='radio',name='sex',value='female',checked=user.profile.sex==='female')
+                    span.help-block
+                    .input-append#birthday
+                        input(data-format='yyyy-MM-dd',type='text',name='birthday',placeHolder='Birthday',value=user.profile.birthday)
+                        span.add-on
+                            i(data-time-icon='icon-time',data-date-icon='icon-calendar')
+                    input(type='text',placeHolder='Phone',name='phone',value=user.profile.phone)
+                    span.help-block
+                    
+                    button.btn(type='submit') OK
+block script
+    script(src='/js/bootstrap-datetimepicker.min.js')
+    script(src='/js/user/edit.js')
