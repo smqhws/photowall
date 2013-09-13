@@ -75,14 +75,6 @@ module.exports = function(mongoose, tool) {
             addedDate: {
                 type: Date,
                 default: Date.now
-            },
-            lastModifiedDate: {
-                type: Date,
-                default: Date.now
-            },
-            lastModifiedBy: {
-                type: Schema.Types.ObjectId,
-                ref: 'User'
             }
         }]
     })
@@ -112,6 +104,20 @@ module.exports = function(mongoose, tool) {
         },
         uploadAndSave: function(file, cb) {
             return tool.uploadAndSave(this, 'path', file, cb)
+        },
+        addComment: function(content, uid, cb) {
+            this.comment.push({
+                content: content,
+                addedBy: uid
+            })
+            this.save(cb)
+        },
+        addTag: function(content, uid, cb) {
+            this.tag.push({
+                content: content,
+                addedBy: uid
+            })
+            this.save(cb)
         }
     }
 
@@ -123,7 +129,7 @@ module.exports = function(mongoose, tool) {
             }
 
             this.find(where)
-                .populate('addedBy', 'profile.name')
+                .populate('addedBy')
                 .sort(sort)
                 .limit(obj.pageSize)
                 .skip(obj.pageSize * obj.pageIndex)
@@ -131,8 +137,9 @@ module.exports = function(mongoose, tool) {
         },
         load: function(id, cb) {
             this.findById(id)
-                .populate('addedBy', 'profile.name')
-                .populate('comment.addedBy', 'profile.name')
+                .populate('addedBy')
+                .populate('comment.addedBy')
+                .populate('tag.addedBy')
                 .exec(cb)
         }
     }

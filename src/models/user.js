@@ -70,6 +70,8 @@ module.exports = function(mongoose, tool) {
             return this.encryptPassword(password) === this.hash
         },
         getUri:function(){
+            if(!this.profile.path)
+                return ''
             return tool.getUri(this,'profile.path')
         },
         uploadAndSave:function(file,cb){
@@ -89,9 +91,12 @@ module.exports = function(mongoose, tool) {
     UserSchema.path('profile.phone').validate(function(val) {
         return tool.is(val) ? tool.is(val, tool.phone) : true
     }, 'phone format error')
-    UserSchema.path('profile.phone').validate(function(val, cb) {
-        tool.is(val) ? tool.isUnique(this, 'profile.phone', val, mongoose.model('User'), cb) : cb(true);
-    }, 'phone must be sth unqiue')
+    UserSchema.path('profile.birthday').validate(function(val) {
+        return tool.is(val) ? tool.is(val, tool.date) : true
+    }, 'birthday format error')
+    // UserSchema.path('profile.phone').validate(function(val, cb) {
+    //     tool.is(val) ? tool.isUnique(this, 'profile.phone', val, mongoose.model('User'), cb) : cb(true);
+    // }, 'phone must be sth unqiue')
 
     function validPassword(val) {
         return tool.is(val, tool.password)

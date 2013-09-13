@@ -58,7 +58,13 @@ module.exports = function(tool, User) {
             res.redirect('/login')
         },
         list: function(req, res) {
-            tool.list(req, res, User, tool.getListOpt(req), 'user/list', 'Users')
+            tool.list(User, tool.getListOpt(req), 'Users', null, function(err, rend) {
+                if (err)
+                    req.render('500', {
+                        error: err
+                    })
+                render(req, res, 'user/list', rend)
+            })
         },
         show: function(req, res) {
             render(req, res, 'user/show', {
@@ -95,11 +101,13 @@ module.exports = function(tool, User) {
         load: function(req, res, next, userId) {
             User.findById(userId, function(err, doc) {
                 if (err) {
+                    console.log(err)
                     req.flash('error', tool.getErrMsg(err))
-                    res.redirect('/user')
+                    res.redirect(redirect)
+                } else {
+                    req.otheruser = doc
+                    next()
                 }
-                req.otheruser = doc
-                next()
             })
         }
     }

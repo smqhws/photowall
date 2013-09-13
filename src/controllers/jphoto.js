@@ -64,16 +64,32 @@ module.exports = function(tool, Photo) {
                 }
             })
         },
+        home:function(req,res){
+            res.render('angular/index')
+        },
         list: function(req, res) {
+            //tool.list(req, res, Photo, tool.getListOpt(req), 'photo/list', 'Photos')
             tool.list(Photo, tool.getListOpt(req), 'Photos', null, function(err, rend) {
                 if (err)
-                    res.render('500', {
+                    res.json({
                         error: err
                     })
-                render(req, res, 'photo/list', rend)
+                _.each(rend.objs,function(element){
+                    element.path=element.getUri()
+                    element.addedBy.profile.path=element.addedBy.getUri()
+                })
+                res.json(rend)
             })
         },
         listByUser: function(req, res) {
+            // var obj = tool.getListOpt(req, {
+            //     where: {
+            //         addedBy: req.otheruser._id
+            //     }
+            // })
+            // tool.list(req, res, Photo, obj, 'photo/list', req.otheruser.getName(), {
+            //     user: req.otheruser
+            // })
             var obj = tool.getListOpt(req, {
                 where: {
                     addedBy: req.otheruser._id
@@ -83,17 +99,14 @@ module.exports = function(tool, Photo) {
                 user: req.otheruser
             }, function(err, rend) {
                 if (err)
-                    res.render('500', {
+                    res.json({
                         error: err
                     })
-                render(req, res, 'photo/list', rend)
+                res.json(rend)
             })
         },
         show: function(req, res) {
-            render(req, res, 'photo/show', {
-                title: req.obj.title,
-                photo: req.obj
-            })
+            res.json({photo:req.obj})
         },
         load: function(req, res, next, photoId) {
             tool.load(req, res, next, photoId, Photo, '/photo')

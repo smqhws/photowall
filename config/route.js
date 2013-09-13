@@ -1,6 +1,6 @@
-module.exports = function(app, tool, user, photo) {
+module.exports = function(app, tool, user, photo, jphoto) {
     var passport = tool.passport
-    
+
     app.get('/signup', user.signup)
     app.post('/user', user.validCreate, user.create)
     app.get('/login', user.login)
@@ -27,15 +27,19 @@ module.exports = function(app, tool, user, photo) {
     app.get('/user/:userId/edit', tool.isAuthenticated, user.edit)
     app.put('/user/:userId', tool.isAuthenticated, user.update)
 
-    app.get('/user/photo/:userId',tool.isAuthenticated,photo.listByUser)
+    app.get('/user/photo/:userId', tool.isAuthenticated, photo.listByUser)
     app.get('/photo/add', tool.isAuthenticated, photo.add)
     app.post('/photo', tool.isAuthenticated, photo.create)
     app.get('/photo', tool.isAuthenticated, photo.list)
     // app.param('photoId', /^[a-z0-9]{24}$/, photo.load)
     app.get('/photo/:photoId', tool.isAuthenticated, photo.show)
     app.get('/photo/:photoId/edit', tool.isAuthenticated, photo.edit)
+    app.post('/photo/:photoId/comment', tool.isAuthenticated, photo.addComment)
+    app.post('/photo/:photoId/tag', tool.isAuthenticated, photo.addTag)
     app.put('/photo/:photoId', tool.isAuthenticated, photo.update)
 
+    app.get('/',tool.isAuthenticated,jphoto.home)
+    app.get('/json', tool.isAuthenticated,jphoto.list)
 
     app.param('userId', /^[a-z0-9]{24}$/, user.load)
     app.param('photoId', /^[a-z0-9]{24}$/, photo.load)

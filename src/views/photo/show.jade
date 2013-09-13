@@ -12,6 +12,31 @@ block content
         li= photo.addedBy.profile.name
         li
             a.btn(href=photo._id+'/edit') edit
+        li
+            form.form-horizontal(action=photo._id+'/comment',method='post')
+                fieldset
+                    textarea(name='content',placeHolder='Comment',row='3')
+                    button.btn(type='submit') OK
+        li
+            | comments
+            ul
+                - var comment=photo.comment
+                each c in comment
+                    li= c.content
+                    li= c.addedBy.getName()
+                    li= c.addedDate
+        li
+            form.form-horizontal(action=photo._id+'/tag',method='post')
+                fieldset
+                    input(type='text',name='content',placeHolder='Tag')
+                    button.btn(type='submit') OK
+        li
+            |   tags
+            ul
+                -var tag=photo.tag
+                each t in tag
+                    li= t.content
+                    li= t.addedBy.getName()
 
 
 

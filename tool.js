@@ -24,6 +24,7 @@ var tool = module.exports = {
     email: /^[a-z0-9A-Z_]+@[a-z0-9A-Z]+(\.[a-z0-9A-Z]+)+$/,
     phone: /^\d{11}$/,
     password: /^[a-z0-9A-Z_]{6,12}$/,
+    date: /^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/,
 
     is: function(str, reg) {
         if (!str || !str.length)
@@ -71,31 +72,41 @@ var tool = module.exports = {
     },
     getListOpt: function(req, opt) {
         var pageIndex = (req.param('pageIndex') > 0 ? req.param('pageIndex') : 1) - 1
+        var pageSize = req.param('pageSize') || 30
         var obj = {
             pageIndex: pageIndex,
-            pageSize: 30
+            pageSize: pageSize
         }
         _.extend(obj, opt)
         return obj
     },
-    list: function(req, res, Model, obj, page, title, rend) {
+    list: function(Model, obj, title, rend, cb) {
         Model.list(obj, function(err, docs) {
-            if (err) return res.render('500', {
-                error: err
-            })
+            if (err) return cb(err)
             Model.count().exec(function(err, count) {
-                if (err) return res.render('500', {
-                    error: err
-                })
+                if (err) return cb(err)
                 var rend = rend || {}
                 _.extend(rend, {
                     title: title,
                     objs: docs,
                     pageIndex: obj.pageIndex + 1,
-                    pageCount: Math.ceil(count / 30)
+                    pageSize: obj.pageSize,
+                    pageCount: Math.ceil(count / obj.pageSize)
                 })
-                tool.render(req, res, page, rend)
+                cb(null, rend)
             })
+        })
+    },
+    load: function(req, res, next, id, Model, redirect) {
+        Model.load(id, function(err, doc) {
+            if (err) {
+                console.log(err)
+                req.flash('error', tool.getErrMsg(err))
+                res.redirect(redirect)
+            } else {
+                req.obj = doc
+                next()
+            }
         })
     },
     render: function(req, res, page, obj) {

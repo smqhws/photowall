@@ -20,7 +20,7 @@ var User = mongoose.model('User')
 var Photo = mongoose.model('Photo')
 var photo = require('./src/controllers/photo')(tool, Photo)
 var user = require('./src/controllers/user')(tool, User)
-
+var jphoto = require('./src/controllers/jphoto')(tool,Photo)
 
 var app = express();
 
@@ -71,7 +71,7 @@ app.param(function(name, fn) {
 })
 
 require('./config/passport')(tool.passport, User)
-require('./config/route')(app, tool, user, photo)
+require('./config/route')(app, tool, user, photo,jphoto)
 
 
 http.createServer(app).listen(app.get('port'), function() {
