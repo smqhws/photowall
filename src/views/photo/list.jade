@@ -5,11 +5,28 @@ block title
 block status
     include ../loginStatus
 block content
-    ul
-        -for(var i in objs)
-            li
-                a(href='photo/'+objs[i]._id)
-                    img(src=objs[i].getUri())
+    .pinterest(ng-controller='PhotoListCtrl')
+        .pin-col(infinite-scroll='photo.nextPage()' ,infinite-scroll-disabled='photo.busy && photo.full' ,infinite-scroll-distance='1')
+            .pin(ng-repeat='p in photo.items')
+                a(ng-click='setCurrent(p)',data-toggle="modal", data-target="#photo-modal")
+                    img(ng-src='{{p.path}}')
+        div(ng-show='photo.full') No more
+        div(ng-show='photo.busy && !photo.full') Loading
+
+        #photo-modal.modal.hide.fade(tabindex='-1',role='dialog',aria-labelledby='title',aria-hidden='true')
+            .modal-header
+                button.close(type="button",data-dismiss='modal',aria-hidden='true' ) &times;
+                h3#title Photo Title
+            .modal-body
+                img(ng-src='{{current_photo.path}}')
+                p {{current_photo.desc}}
+                ul
+                    li(ng-repeat='c in current_photo.comment') {{c.content}}
+                textarea(placeHolder = 'Comment',ng-model='new_comment')
+                button.btn(ng-click='addComment()') Submit
+            .modal-footer
+                
+
 
 
 

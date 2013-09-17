@@ -34,12 +34,13 @@ module.exports = function(app, tool, user, photo, jphoto) {
     // app.param('photoId', /^[a-z0-9]{24}$/, photo.load)
     app.get('/photo/:photoId', tool.isAuthenticated, photo.show)
     app.get('/photo/:photoId/edit', tool.isAuthenticated, photo.edit)
-    app.post('/photo/:photoId/comment', tool.isAuthenticated, photo.addComment)
+    //app.post('/photo/:photoId/comment', tool.isAuthenticated, photo.addComment)
     app.post('/photo/:photoId/tag', tool.isAuthenticated, photo.addTag)
     app.put('/photo/:photoId', tool.isAuthenticated, photo.update)
 
     app.get('/',tool.isAuthenticated,jphoto.home)
     app.get('/json', tool.isAuthenticated,jphoto.list)
+    app.post('/photo/:photoId/comment',tool.isAuthenticated,jphoto.addComment)
 
     app.param('userId', /^[a-z0-9]{24}$/, user.load)
     app.param('photoId', /^[a-z0-9]{24}$/, photo.load)

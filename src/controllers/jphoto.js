@@ -27,10 +27,9 @@ module.exports = function(tool, Photo) {
             req.obj.addComment(req.param('content'), req.user._id, function(err, doc) {
                 if (err) {
                     console.log(err)
-                    req.flash('error', tool.getErrMsg(err))
-                    res.redirect('/photo/' + req.obj._id)
+                    res.json(500,{error:tool.getErrMsg(err)})
                 } else
-                    res.redirect('/photo/' + req.obj._id)
+                    res.json(doc.comment[doc.comment.length-1])
             })
         },
         addTag: function(req, res) {

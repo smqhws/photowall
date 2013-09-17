@@ -129,7 +129,9 @@ module.exports = function(mongoose, tool) {
             }
 
             this.find(where)
-                .populate('addedBy')
+                .populate('addedBy','email profile')
+                .populate('comment.addedBy','email profile')
+                .populate('tag.addedBy','email profile')
                 .sort(sort)
                 .limit(obj.pageSize)
                 .skip(obj.pageSize * obj.pageIndex)
@@ -137,9 +139,9 @@ module.exports = function(mongoose, tool) {
         },
         load: function(id, cb) {
             this.findById(id)
-                .populate('addedBy')
-                .populate('comment.addedBy')
-                .populate('tag.addedBy')
+                .populate('addedBy','email profile')
+                .populate('comment.addedBy','email profile')
+                .populate('tag.addedBy','email profile')
                 .exec(cb)
         }
     }

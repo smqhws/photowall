@@ -54,7 +54,7 @@ var tool = module.exports = {
             next()
         else {
             req.flash('error', 'Must log in')
-            res.redirect('/user/login')
+            res.redirect('/login')
         }
     },
     getErrMsg: function(err) {

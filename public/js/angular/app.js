@@ -2,7 +2,7 @@
 
 
 // Declare app level module which depends on filters, and services
-angular.module('photowall', ['photowall.filters', 'photowall.services', 'photowall.directives', 'photowall.controllers'])
+angular.module('photowall', ['photowall.filters', 'photowall.services', 'photowall.directives', 'photowall.controllers','infinite-scroll'])
 // .
 // config(
 //   ['$routeProvider', function($routeProvider) {

@@ -1,5 +1,5 @@
 !!!5
-html
+html(ng-app='photowall')
     head
         block title
             title Photo Wall
@@ -7,7 +7,7 @@ html
         block link
     body
         include ./header
-        .container
+        .container-fluid
             include ./msg
             block content
             include ./footer
