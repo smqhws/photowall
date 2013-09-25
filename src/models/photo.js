@@ -128,7 +128,7 @@ module.exports = function(mongoose, tool) {
                 'createdDate': -1
             }
 
-            this.find(where)
+            this.find(where,'_id path')
                 .populate('addedBy','email profile')
                 .populate('comment.addedBy','email profile')
                 .populate('tag.addedBy','email profile')

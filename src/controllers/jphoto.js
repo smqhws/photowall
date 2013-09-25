@@ -75,7 +75,7 @@ module.exports = function(tool, Photo) {
                     })
                 _.each(rend.objs,function(element){
                     element.path=element.getUri()
-                    element.addedBy.profile.path=element.addedBy.getUri()
+                    //element.addedBy.profile.path=element.addedBy.getUri()
                 })
                 res.json(rend)
             })
@@ -105,6 +105,7 @@ module.exports = function(tool, Photo) {
             })
         },
         show: function(req, res) {
+            req.obj.path = req.obj.getUri()
             res.json({photo:req.obj})
         },
         load: function(req, res, next, photoId) {

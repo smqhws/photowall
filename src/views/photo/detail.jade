@@ -1,0 +1,14 @@
+.modal-header
+    button.close(type="button",data-dismiss='modal',aria-hidden='true' ) &times;
+    h3#title Photo Title
+.modal-body.text-center
+    a(ng-click='nextPhoto()')
+        img(ng-src='{{current_photo.path}}')
+    p.text-left {{current_photo.desc}}
+    ul
+        li(ng-repeat='c in current_photo.comment') {{c.content}}
+    textarea(placeHolder = 'Comment',ng-model='new_comment')
+    button.btn(ng-click='addComment()') Submit
+.modal-footer
+    button.btn(ng-click='nextPhoto()') Next
+    button.btn(ng-click='prePhoto()') Pre

@@ -5,28 +5,60 @@ block title
 block status
     include ../loginStatus
 block content
-    .pinterest(ng-controller='PhotoListCtrl')
-        .pin-col(infinite-scroll='photo.nextPage()' ,infinite-scroll-disabled='photo.busy && photo.full' ,infinite-scroll-distance='1')
-            .pin(ng-repeat='p in photo.items')
-                a(ng-click='setCurrent(p)',data-toggle="modal", data-target="#photo-modal")
-                    img(ng-src='{{p.path}}')
-        div(ng-show='photo.full') No more
-        div(ng-show='photo.busy && !photo.full') Loading
-
-        #photo-modal.modal.hide.fade(tabindex='-1',role='dialog',aria-labelledby='title',aria-hidden='true')
-            .modal-header
-                button.close(type="button",data-dismiss='modal',aria-hidden='true' ) &times;
-                h3#title Photo Title
-            .modal-body
-                img(ng-src='{{current_photo.path}}')
-                p {{current_photo.desc}}
+    div(ng-controller='PhotoListCtrl')
+        div(infinite-scroll='photos.nextPage()' 
+            ,infinite-scroll-disabled='photos.busy || photos.full' 
+            ,infinite-scroll-distance='1')
+            pinerest(items='photos.items'
+                ,set-current='setCurrent(index)',
+                pin-number='photos.pinNum')
+            //- ul.thumbnails
+            //-     li.span3(ng-repeat='brick in photos.items')
+            //-         a.thumbnail(ng-click='setCurrent($index)',data-toggle="modal", data-target="#photo-modal")
+            //-             img(ng-src='{{brick.path}}')
+        div(ng-show='photos.full') 
+            .pagination
                 ul
-                    li(ng-repeat='c in current_photo.comment') {{c.content}}
-                textarea(placeHolder = 'Comment',ng-model='new_comment')
-                button.btn(ng-click='addComment()') Submit
-            .modal-footer
-                
+                    li(ng-repeat='bigpage in page_arr')
+                        a(ng-click='photos.selectBigPage(bigpage)'
+                            ,ng-show='bigpage - photos.bigPageIndex') {{bigpage}}
+                        span(ng-show='!(bigpage-photos.bigPageIndex)') {{bigpage}}
+        div(ng-show='photos.busy && !photos.full') Loading
 
+        #photo-modal.modal.hide.fade(tabindex='-1'
+            ,role='dialog',aria-labelledby='title',aria-hidden='true')
+            .modal-header
+                button.close(type="button",data-dismiss='modal'
+                    ,aria-hidden='true' ) &times;
+                h3#title {{current_photo.addedBy.profile.name || current_photo.addedBy.email}}
+            .modal-body
+                .text-center.well
+                    a(ng-click='nextPhoto()')
+                        img(ng-src='{{current_photo.path}}')
+
+                    p.text-left {{current_photo.desc}}
+                .accordion#comments-accordion
+                    .accordion-group
+                        .accordion-heading
+                            a.accordion-toggle(ng-click="comments_closed = !comments_closed",
+                                data-toggle="collapse",
+                                data-parent="#comments-accordion",
+                                href='#comments-collapse',
+                                ng-init = 'comments_closed = true')
+                                span(ng-show='comments_closed') Open Comments
+                                span(ng-show='!comments_closed') Close Comments
+                        #comments-collapse.accordion-body.collapse
+                            div                       
+                                ul
+                                    li(ng-repeat='c in current_photo.comment') {{c.content}}
+                textarea.input-block-level(placeHolder = 'Comment'
+                    ,ng-model='new_comment')
+                button.btn.btn-block(ng-click='addComment()') Submit
+            .modal-footer
+                button.btn(ng-click='nextPhoto()') Next
+                button.btn(ng-click='prePhoto()') Pre
+
+ 
 
 
 

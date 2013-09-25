@@ -32,7 +32,7 @@ module.exports = function(app, tool, user, photo, jphoto) {
     app.post('/photo', tool.isAuthenticated, photo.create)
     app.get('/photo', tool.isAuthenticated, photo.list)
     // app.param('photoId', /^[a-z0-9]{24}$/, photo.load)
-    app.get('/photo/:photoId', tool.isAuthenticated, photo.show)
+    app.get('/photo/:photoId', tool.isAuthenticated, jphoto.show)
     app.get('/photo/:photoId/edit', tool.isAuthenticated, photo.edit)
     //app.post('/photo/:photoId/comment', tool.isAuthenticated, photo.addComment)
     app.post('/photo/:photoId/tag', tool.isAuthenticated, photo.addTag)

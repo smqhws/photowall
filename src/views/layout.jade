@@ -6,10 +6,11 @@ html(ng-app='photowall')
         include ./head
         block link
     body
-        include ./header
-        .container-fluid
-            include ./msg
-            block content
-            include ./footer
-            block script
+        .page-container
+            include ./header
+            .container-fluid
+                include ./msg
+                block content
+                include ./footer
+                block script
 
