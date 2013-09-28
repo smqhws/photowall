@@ -9,7 +9,8 @@ var fs = require('fs')
 var path = require('path')
 var passport = require('passport')
 var OtherError = require('./error').OtherError
-
+var upload = require('jquery-file-upload-middleware')
+var uploadDir = path.join(__dirname,'/public/uploads')
 var tool = module.exports = {
     _: _,
     sizeOf: sizeOf,
@@ -20,12 +21,26 @@ var tool = module.exports = {
     passport: passport,
     OtherError: OtherError,
     imager: imager,
+    defaultPageSize: 16,
+    upload: upload,
+    uploadDir:uploadDir,
+    uploadUri:'/uploads',
 
     email: /^[a-z0-9A-Z_]+@[a-z0-9A-Z]+(\.[a-z0-9A-Z]+)+$/,
     phone: /^\d{11}$/,
     password: /^[a-z0-9A-Z_]{6,12}$/,
     date: /^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/,
 
+    guid: function() {
+        function G() {
+            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+        }
+
+        var guid = (G() + G() + "-" + G() + "-" + G() + "-" +
+            G() + "-" + G() + G() + G()).toLowerCase();
+
+        return guid
+    },
     is: function(str, reg) {
         if (!str || !str.length)
             return false
@@ -72,7 +87,7 @@ var tool = module.exports = {
     },
     getListOpt: function(req, opt) {
         var pageIndex = (req.param('pageIndex') > 0 ? req.param('pageIndex') : 1) - 1
-        var pageSize = req.param('pageSize') || 30
+        var pageSize = req.param('pageSize') || this.defaultPageSize
         var obj = {
             pageIndex: pageIndex,
             pageSize: pageSize
@@ -114,19 +129,35 @@ var tool = module.exports = {
         res.render(page, obj)
     },
     getUri: function(self, key) {
-        return path.join('/upload/', path.basename(self.get(key)))
+        var p = JSON.stringify(self.get(key)).slice(tool.uploadDir.length,-1)
+        return path.join(this.uploadUri, p)
     },
     uploadAndSave: function(self, key, file, cb) {
         if (!file)
             return self.save(cb)
-        if (self.get(key) && file)
-            fs.unlink(self.get(key), function(err) {
-                if (err)
-                    cb(new OtherError('Old photo delete error'))
-            })
+
+        if (self.get(key) && file) {
+            if (self.get(key).indexOf('/upload/') != -1) {
+                // /home/david/Workspace/dev/hello-ndoe/public/upload/xxxx.jpg
+                var oldPath = self.get(key)
+                if (self.get(key).indexOf('/upload/') == 0) {
+                    // /upload/xxxx.jpg
+                    oldPath = path.join(path.resolve(file.path, '../../'), self.get(key))
+                }
+                console.log(oldPath)
+                fs.unlink(oldPath, function(err) {
+                    if (err)
+                        return cb(new OtherError('Old photo delete error'))
+                })
+            }
+            // else{
+            //     // http://www.placeholder.com/.....
+            // }
+        }
+
         var tempPath = file.path
         var ext = path.extname(file.name).toLowerCase()
-        var targetPath = path.join(path.resolve(tempPath, '../../upload/'), path.basename(file.path).toLowerCase() + ext)
+        var targetPath = path.join(uploadDir, path.basename(file.path).toLowerCase() + ext)
         console.log(targetPath)
         if (_.contains(['.jpg', '.jpeg', '.png', '.gif'], ext))
             fs.rename(tempPath, targetPath, function(err) {

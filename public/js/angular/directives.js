@@ -18,20 +18,24 @@ angular.module('photowall.directives', [])
                 replace: true,
                 scope: {
                     items: '=',
-                    setCurrent: '&',
-                    pin_number: '=pinNumber'
+                    setCurrent: '&'
                 },
-                template: '<div class="row-fluid pin-wall">' + '<div class="span3 pin-col"></div>' + '<div class="span3 pin-col"></div>' + '<div class="span3 pin-col"></div>' + '<div class="span3 pin-col"></div>' + '</div>',
+                template: '<div class="row pin-wall">' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '</div>',
                 link: function(scope, elm, attrs) {
                     var cols = $(elm).find('.pin-col')
-
+                    var width = cols.width()
+                    scope.pin_number = 0
                     var getMin = function(arr) {
-                        var min = arr.first()
-                        arr.each(function() {
-                            if ($(this).height() < min.height())
-                                min = $(this)
-                        })
-                        return min
+                        var min = 0
+                        for (var i = 0; i < arr.length; i++) {
+                            if ($(arr[i]).height() < $(arr[min]).height()) {
+                                min = i
+                            } else if ($(arr[i]).height() == $(arr[min]).height()) {
+                                if (i < min)
+                                    min = i
+                            }
+                        }
+                        return $(arr[min])
                     }
                     var load = function(fn) {
                         if (!scope.items || scope.pin_number >= scope.items.length)
@@ -48,26 +52,38 @@ angular.module('photowall.directives', [])
                                     elm.append(img)
                                     wrapper.append(elm)
                                     $compile(wrapper)(scope)
-                                    getMin(cols).append(wrapper)
+                                    getMin(cols.toArray()).append(wrapper)
                                     scope.pin_number++
                                 }
                                 load(loadImage)
                             }, {
-                                maxWidth: 320
+                                maxWidth: width
                             })
                     }
 
-                    scope.$watch('items', function() {
-                        console.log('---------------------')
-                        console.log(JSON.stringify(scope.items))
-                        console.log(JSON.stringify(scope.pin_number))
-                        console.log('---------------------')
-                        if (!scope.items || !scope.items.length)
-                            return
-                        if(!scope.pin_number)
+                    var contains = function(now, old) {
+                        var i = 0
+                        if (!old || !now || !now.length)
+                            return false
+                        if (!old.length)
+                            return true
+                        for (i = 0; i < old.length; i++) {
+                            if (now[i]._id !== old[i]._id)
+                                break
+                        }
+                        return i === old.length
+                    }
+                    scope.$watch('items', function(now, old) {
+                        if (!now || !now.length) {
                             cols.empty()
+                            scope.pin_number = 0
+                        } else if (!contains(now, old)) {
+                            cols.empty()
+                            scope.pin_number = 0
+                        }
+
                         load(loadImage)
-                    },true)
+                    }, true)
 
 
                 }

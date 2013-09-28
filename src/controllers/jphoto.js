@@ -2,50 +2,51 @@ module.exports = function(tool, Photo) {
     var render = tool.render
     var _ = tool._
     var check = tool.check
+    var path = tool.path
+    var fs = tool.fs
     result = {
         add: function(req, res) {
-            render(req, res, 'photo/edit', {
-                title: 'New Image',
-                action: '/photo',
+            res.render('photo/edit', {
+                action: '/jphoto',
                 photo: new Photo()
             })
         },
         create: function(req, res) {
             var p = new Photo(req.body)
             p.addedBy = req.user.id
-            p.uploadAndSave(req.files.image, function(err, doc) {
-                if (err) {
-                    console.log(err)
-                    req.flash('error', tool.getErrMsg(err))
-                    res.redirect('/photo/new')
-                } else {
-                    res.redirect('/photo/' + p._id)
-                }
+            var targetDir = path.join(tool.uploadDir, req.user.id)
+            var fm = tool.upload.fileManager({
+                targetDir: targetDir,
+                targetUrl: path.join(tool.uploadUri, req.user.id),
             })
-        },
-        addComment: function(req, res) {
-            req.obj.addComment(req.param('content'), req.user._id, function(err, doc) {
-                if (err) {
-                    console.log(err)
-                    res.json(500,{error:tool.getErrMsg(err)})
-                } else
-                    res.json(doc.comment[doc.comment.length-1])
+
+            req.filemanager.move(req.param('name'), '', function(err, result) {
+                if (err)
+                    res.json(500, {error: err})
+                p.path = path.join(targetDir, req.param('name'))
+                p.save(function(err, doc) {
+                    if (err)
+                        res.json(500, {error: err})
+                    else
+                        res.json({success: 'success'})
+                })
             })
+
         },
-        addTag: function(req, res) {
-            req.obj.addTag(req.param('content'), req.user._id, function(err, doc) {
-                if (err) {
-                    console.log(err)
-                    req.flash('error', tool.getErrMsg(err))
-                    res.redirect('/photo/' + req.obj._id)
-                } else
-                    res.redirect('/photo/' + req.obj._id)
-            })
-        },
+        // create: function(req, res) {
+        //     var p = new Photo(req.body)
+        //     p.addedBy = req.user.id
+        //     p.uploadAndSave(req.files.image, function(err, doc) {
+        //         if (err) {
+        //             res.json('500',{error:err})
+        //         } else {
+        //             res.json({success:'success'})
+        //         }
+        //     })
+        // },
         edit: function(req, res) {
-            render(req, res, 'photo/edit', {
-                title: 'Edit Image',
-                action: '/photo/' + req.obj._id,
+            res.render('photo/edit', {
+                action: '/jphoto/' + req.obj._id,
                 photo: req.obj
             })
         },
@@ -55,61 +56,59 @@ module.exports = function(tool, Photo) {
             p.lastModifiedBy = req.user._id
             p.uploadAndSave(req.files.image, function(err, doc) {
                 if (err) {
-                    console.log(err)
-                    req.flash('error', tool.getErrMsg(err))
-                    res.redirect('/photo/' + p._id + '/edit')
+                    res.json(500, {
+                        error: err
+                    })
                 } else {
-                    res.redirect('/photo/' + p._id)
+                    res.json({
+                        success: 'success'
+                    })
                 }
             })
         },
-        home:function(req,res){
-            res.render('angular/index')
+        addComment: function(req, res) {
+            req.obj.addComment(req.param('content'), req.user._id, function(err, doc) {
+                if (err) {
+                    console.log(err)
+                    res.json(500, {
+                        error: tool.getErrMsg(err)
+                    })
+                } else
+                    res.json(doc.comment[doc.comment.length - 1])
+            })
+        },
+        count: function(req, res) {
+            Photo.count().exec(function(err, count) {
+                if (err)
+                    res.json(500, {
+                        error: err
+                    })
+                res.json({
+                    count: count
+                })
+            })
         },
         list: function(req, res) {
-            //tool.list(req, res, Photo, tool.getListOpt(req), 'photo/list', 'Photos')
-            tool.list(Photo, tool.getListOpt(req), 'Photos', null, function(err, rend) {
+            Photo.list(tool.getListOpt(req), function(err, objs) {
                 if (err)
-                    res.json({
+                    res.json(500, {
                         error: err
                     })
-                _.each(rend.objs,function(element){
-                    element.path=element.getUri()
-                    //element.addedBy.profile.path=element.addedBy.getUri()
-                })
-                res.json(rend)
-            })
-        },
-        listByUser: function(req, res) {
-            // var obj = tool.getListOpt(req, {
-            //     where: {
-            //         addedBy: req.otheruser._id
-            //     }
-            // })
-            // tool.list(req, res, Photo, obj, 'photo/list', req.otheruser.getName(), {
-            //     user: req.otheruser
-            // })
-            var obj = tool.getListOpt(req, {
-                where: {
-                    addedBy: req.otheruser._id
-                }
-            })
-            tool.list(Photo, obj, req.otheruser.getName(), {
-                user: req.otheruser
-            }, function(err, rend) {
-                if (err)
-                    res.json({
-                        error: err
-                    })
-                res.json(rend)
+                res.json(objs)
             })
         },
         show: function(req, res) {
-            req.obj.path = req.obj.getUri()
-            res.json({photo:req.obj})
+            res.json(req.obj)
         },
         load: function(req, res, next, photoId) {
-            tool.load(req, res, next, photoId, Photo, '/photo')
+            Photo.load(photoId, function(err, doc) {
+                if (err)
+                    res.json(500, {
+                        error: err
+                    })
+                req.obj = doc
+                next()
+            })
         }
     }
     return result

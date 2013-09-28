@@ -1,0 +1,56 @@
+form#fileupload(action='//jquery-file-upload.appspot.com/', method='POST', enctype='multipart/form-data', data-ng-app='demo', data-ng-controller='DemoFileUploadController', data-file-upload='options', data-ng-class='{"fileupload-processing": processing() || loadingFiles}')
+       
+        // The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload
+        .row-fluid.fileupload-buttonbar
+          .span7
+            // The fileinput-button span is used to style the file input field as button
+            span.btn.btn-success.fileinput-button(ng-class='{disabled: disabled}')
+              i.glyphicon.glyphicon-plus
+              span Add files&period;&period;&period;
+              input(type='file', name='files[]', multiple='', ng-disabled='disabled')
+            button.btn.btn-primary.start(type='button', data-ng-click='submit()')
+              i.glyphicon.glyphicon-upload
+              span Start upload
+            button.btn.btn-warning.cancel(type='button', data-ng-click='cancel()')
+              i.glyphicon.glyphicon-ban-circle
+              span Cancel upload
+            // The loading indicator is shown during file processing
+            .fileupload-loading
+          // The global progress information
+          .col-lg-5.fade(data-ng-class='{in: active()}')
+            // The global progress bar
+            .progress.progress-striped.active(data-file-upload-progress='progress()')
+              .progress-bar.progress-bar-success(data-ng-style='{width: num + "%"}')
+            // The extended global progress information
+            .progress-extended &NonBreakingSpace;
+        // The table listing the files available for upload/download
+        table.table.table-striped.files.ng-cloak
+          tr(data-ng-repeat='file in queue')
+            td(data-ng-switch='', data-on='!!file.thumbnailUrl')
+              .preview(data-ng-switch-when='true')
+                a(data-ng-href='{{file.url}}', title='{{file.name}}', download='{{file.name}}', data-gallery='')
+                  img(data-ng-src='{{file.thumbnailUrl}}', alt='')
+              .preview(data-ng-switch-default='', data-file-upload-preview='file')
+            td
+              p.name(data-ng-switch='', data-on='!!file.url')
+                span(data-ng-switch-when='true', data-ng-switch='', data-on='!!file.thumbnailUrl')
+                  a(data-ng-switch-when='true', data-ng-href='{{file.url}}', title='{{file.name}}', download='{{file.name}}', data-gallery='') &lcub;&lcub;file&period;name&rcub;&rcub;
+                  a(data-ng-switch-default='', data-ng-href='{{file.url}}', title='{{file.name}}', download='{{file.name}}') &lcub;&lcub;file&period;name&rcub;&rcub;
+                span(data-ng-switch-default='') &lcub;&lcub;file&period;name&rcub;&rcub;
+              div(data-ng-show='file.error')
+                span.label.label-danger Error
+                | &lcub;&lcub;file&period;error&rcub;&rcub;
+            td
+              p.size &lcub;&lcub;file&period;size &VerticalLine; formatFileSize&rcub;&rcub;
+              .progress.progress-striped.active.fade(data-ng-class='{pending: "in"}[file.$state()]', data-file-upload-progress='file.$progress()')
+                .progress-bar.progress-bar-success(data-ng-style='{width: num + "%"}')
+            td
+              button.btn.btn-primary.start(type='button', data-ng-click='file.$submit()', data-ng-hide='!file.$submit')
+                i.glyphicon.glyphicon-upload
+                span Start
+              button.btn.btn-warning.cancel(type='button', data-ng-click='file.$cancel()', data-ng-hide='!file.$cancel')
+                i.glyphicon.glyphicon-ban-circle
+                span Cancel
+              button.btn.btn-danger.destroy(data-ng-controller='FileDestroyController', type='button', data-ng-click='file.$destroy()', data-ng-hide='!file.$destroy')
+                i.glyphicon.glyphicon-trash
+                span Delete

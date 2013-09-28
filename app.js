@@ -11,8 +11,6 @@ mongoose.connect(connectString)
 var flash = require('connect-flash')
 var tool = require('./tool')
 
-
-
 //depend on sth
 require('./src/models/photo')(mongoose, tool)
 require('./src/models/user')(mongoose, tool)
@@ -20,10 +18,32 @@ var User = mongoose.model('User')
 var Photo = mongoose.model('Photo')
 var photo = require('./src/controllers/photo')(tool, Photo)
 var user = require('./src/controllers/user')(tool, User)
-var jphoto = require('./src/controllers/jphoto')(tool,Photo)
+var jphoto = require('./src/controllers/jphoto')(tool, Photo)
 
 var app = express();
 
+tool.upload.configure({
+    uploadDir: tool.uploadDir,
+    uploadUrl: '/uploads',
+    imageVersions: {
+        thumbnail: {
+            width: 80,
+            height: 80
+        }
+    }
+});
+tool.upload.on('begin', function(info) {
+    info.name = tool.guid() + tool.path.extname(info.name).toLowerCase()
+})
+tool.upload.on('end', function(info) {
+
+})
+tool.upload.on('delete', function(info) {
+
+})
+tool.upload.on('error', function(info) {
+
+})
 
 
 // all environments
@@ -32,17 +52,18 @@ app.set('views', __dirname + '/src/views');
 app.set('view engine', 'jade');
 app.use(express.favicon());
 app.use(express.logger('dev'));
+app.use('/uploads', tool.upload.fileHandler());
 app.use(express.bodyParser({
-  uploadDir: tool.path.join(__dirname, '/public/temp')
+    uploadDir: tool.uploadDir
 }));
 app.use(express.methodOverride());
 app.use(express.cookieParser());
 app.use(express.session({
-  secret: 'david_phonewall',
-  store: new mongoStore({
-    url: connectString,
-    collection: 'sessions'
-  })
+    secret: 'david_phonewall',
+    store: new mongoStore({
+        url: connectString,
+        collection: 'sessions'
+    })
 }));
 app.use(tool.passport.initialize());
 app.use(tool.passport.session());
@@ -53,29 +74,29 @@ app.use(express.static(tool.path.join(__dirname, 'public')));
 
 // development only
 if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
+    app.use(express.errorHandler());
 }
 
 app.param(function(name, fn) {
-  if (fn instanceof RegExp) {
-    return function(req, res, next, val) {
-      var captures
-      if (captures = fn.exec(String(val))) {
-        req.params[name] = captures
-        next()
-      } else {
-        next('route')
-      }
+    if (fn instanceof RegExp) {
+        return function(req, res, next, val) {
+            var captures
+            if (captures = fn.exec(String(val))) {
+                req.params[name] = captures
+                next()
+            } else {
+                next('route')
+            }
+        }
     }
-  }
 })
 
 require('./config/passport')(tool.passport, User)
-require('./config/route')(app, tool, user, photo,jphoto)
+require('./config/route')(app, tool, user, photo, jphoto)
 
 
 http.createServer(app).listen(app.get('port'), function() {
-  console.log('Express server listening on port ' + app.get('port'));
+    console.log('Express server listening on port ' + app.get('port'));
 });
 
 

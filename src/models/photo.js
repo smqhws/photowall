@@ -128,21 +128,35 @@ module.exports = function(mongoose, tool) {
                 'createdDate': -1
             }
 
-            this.find(where,'_id path')
-                .populate('addedBy','email profile')
-                .populate('comment.addedBy','email profile')
-                .populate('tag.addedBy','email profile')
+            this.find(where, '_id path')
+                .populate('addedBy', 'email profile')
+                .populate('comment.addedBy', 'email profile')
+                .populate('tag.addedBy', 'email profile')
                 .sort(sort)
                 .limit(obj.pageSize)
                 .skip(obj.pageSize * obj.pageIndex)
-                .exec(cb)
+                .exec(function(err, docs) {
+                    if (err)
+                        return cb(err)
+                    _.each(docs, function(element) {
+                        element.path = element.getUri()
+                        //element.addedBy.profile.path=element.addedBy.getUri()
+                    })
+                    cb(null,docs)
+                })
         },
         load: function(id, cb) {
             this.findById(id)
-                .populate('addedBy','email profile')
-                .populate('comment.addedBy','email profile')
-                .populate('tag.addedBy','email profile')
-                .exec(cb)
+                .populate('addedBy', 'email profile')
+                .populate('comment.addedBy', 'email profile')
+                .populate('tag.addedBy', 'email profile')
+                .exec(function(err,doc){
+                    if(err)
+                        return cb(err)
+                    doc.path = doc.getUri()
+
+                    cb(null,doc)
+                })
         }
     }
     mongoose.model('Photo', PhotoSchema)

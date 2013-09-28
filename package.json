@@ -19,6 +19,7 @@
         "imager": "latest",
         "underscore":"latest",
         "thumbbot":"latest",
-        "image-size":"latest"
+        "image-size":"latest",
+        "jquery-file-upload-middleware": "git://github.com/soomtong/jquery-file-upload-middleware.git"
     }
 }

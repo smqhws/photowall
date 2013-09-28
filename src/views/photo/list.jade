@@ -10,53 +10,49 @@ block content
             ,infinite-scroll-disabled='photos.busy || photos.full' 
             ,infinite-scroll-distance='1')
             pinerest(items='photos.items'
-                ,set-current='setCurrent(index)',
-                pin-number='photos.pinNum')
-            //- ul.thumbnails
-            //-     li.span3(ng-repeat='brick in photos.items')
-            //-         a.thumbnail(ng-click='setCurrent($index)',data-toggle="modal", data-target="#photo-modal")
-            //-             img(ng-src='{{brick.path}}')
+                ,set-current='setCurrent(index)')
         div(ng-show='photos.full') 
-            .pagination
-                ul
-                    li(ng-repeat='bigpage in page_arr')
-                        a(ng-click='photos.selectBigPage(bigpage)'
-                            ,ng-show='bigpage - photos.bigPageIndex') {{bigpage}}
-                        span(ng-show='!(bigpage-photos.bigPageIndex)') {{bigpage}}
+            ul.pagination
+                li(ng-repeat='bigpage in page_arr')
+                    a(ng-click='photos.selectBigPage(bigpage)'
+                        ,ng-show='bigpage - photos.bigPageIndex') {{bigpage}}
+                    span(ng-show='!(bigpage-photos.bigPageIndex)') {{bigpage}}
         div(ng-show='photos.busy && !photos.full') Loading
 
-        #photo-modal.modal.hide.fade(tabindex='-1'
-            ,role='dialog',aria-labelledby='title',aria-hidden='true')
-            .modal-header
-                button.close(type="button",data-dismiss='modal'
-                    ,aria-hidden='true' ) &times;
-                h3#title {{current_photo.addedBy.profile.name || current_photo.addedBy.email}}
-            .modal-body
-                .text-center.well
-                    a(ng-click='nextPhoto()')
-                        img(ng-src='{{current_photo.path}}')
-
-                    p.text-left {{current_photo.desc}}
-                .accordion#comments-accordion
-                    .accordion-group
-                        .accordion-heading
-                            a.accordion-toggle(ng-click="comments_closed = !comments_closed",
-                                data-toggle="collapse",
-                                data-parent="#comments-accordion",
-                                href='#comments-collapse',
-                                ng-init = 'comments_closed = true')
-                                span(ng-show='comments_closed') Open Comments
-                                span(ng-show='!comments_closed') Close Comments
-                        #comments-collapse.accordion-body.collapse
-                            div                       
-                                ul
-                                    li(ng-repeat='c in current_photo.comment') {{c.content}}
-                textarea.input-block-level(placeHolder = 'Comment'
-                    ,ng-model='new_comment')
-                button.btn.btn-block(ng-click='addComment()') Submit
-            .modal-footer
-                button.btn(ng-click='nextPhoto()') Next
-                button.btn(ng-click='prePhoto()') Pre
+        #photo-modal.modal.fade(tabindex='-1'
+            ,role='dialog',aria-labelledby='photo-modal-title',aria-hidden='true')
+                
+                        .modal-header
+                            button.close(type="button",data-dismiss='modal'
+                                ,aria-hidden='true' ) &times;
+                            h3#photo-modal-title {{current_photo.addedBy.profile.name || current_photo.addedBy.email}}
+                        .modal-body
+                            .text-center.well
+                                a.pull-right(data-toggle='modal',data-target='#edit-photo-modal',href='{{"/jphoto/"+current_id+"/edit"}}')
+                                    span.glyphicon.glyphicon-edit
+                                a(ng-click='nextPhoto()')
+                                    img(ng-src='{{current_photo.path}}')
+                                p.text-left {{current_photo.desc}}
+                            .accordion#comments-accordion
+                                .accordion-group
+                                    .accordion-heading
+                                        a.accordion-toggle(ng-click="comments_closed = !comments_closed",
+                                            data-toggle="collapse",
+                                            data-parent="#comments-accordion",
+                                            href='#comments-collapse',
+                                            ng-init = 'comments_closed = true')
+                                            span(ng-show='comments_closed') Open Comments
+                                            span(ng-show='!comments_closed') Close Comments
+                                    #comments-collapse.accordion-body.collapse
+                                        div                       
+                                            ul
+                                                li(ng-repeat='c in current_photo.comment') {{c.content}}
+                            textarea.input-block-level(placeHolder = 'Comment'
+                                ,ng-model='new_comment')
+                            button.btn.btn-block(ng-click='addComment()') Submit
+                        .modal-footer
+                            button.btn(ng-click='nextPhoto()') Next
+                            button.btn(ng-click='prePhoto()') Pre
 
  
 

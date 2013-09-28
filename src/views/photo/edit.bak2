@@ -1,0 +1,36 @@
+mixin fileupload
+    .fileupload-new.thumbnail( style="width: 240px; height: 320px;")
+        img(src="http://www.placehold.it/240x320/EFEFEF/AAAAAA&text=no+image")
+    div
+        span.btn.btn-file
+            span.fileupload-new Browse
+            span.fileupload-exists Change
+            input(type='file')
+        a.btn.fileupload-exists(href='#',data-dismiss='fileupload') Remove
+
+
+#eidt-photo-modal.modal.hide.fade(tabindex='-1'
+    ,role='dialog',aria-labelledby='eidt-photo-modal-title',aria-hidden='true')
+    .modal-header
+        button.close(type="button",data-dismiss='modal'
+            ,aria-hidden='true' ) &times;
+        h3#eidt-photo-modal-title Upload a photo
+    .modal-body
+        .text-center.well
+            form.form-horizontal(enctype="multipart/form-data",action=????,method='post')
+                fieldset
+                    div(ng-if='!photo???')
+                        input(type="hidden", name="_method", value="PUT")
+                        .fileupload.fileupload-exists.text-center(data-provides='fileupload',data-name='image')
+                            .fileupload-preview.fileupload-exists.thumbnail(style="max-width: 800px; max-height: 480px; line-height: 20px;")
+                                img(ng-src='photo.path')
+                            +fileupload
+                    div(ng-if='photo')
+                        .fileupload.fileupload-new.text-center(data-provides='fileupload',data-name='image')
+                            .fileupload-preview.fileupload-exists.thumbnail(style="max-width: 800px; max-height: 480px; line-height: 20px;")
+                            +fileupload
+                    
+                   
+                    textarea#desc.input-block-level(rows='4',placeHolder='Add description here',name='desc',ng-model='photo.desc')
+    .modal-footer
+                button.btn(type='submit') OK

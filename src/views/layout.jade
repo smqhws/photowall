@@ -6,11 +6,12 @@ html(ng-app='photowall')
         include ./head
         block link
     body
-        .page-container
+        .page-container(ng-controller = 'GlobalCtrl')
             include ./header
-            .container-fluid
+            .container
                 include ./msg
                 block content
+                include ./modal
                 include ./footer
                 block script
 
