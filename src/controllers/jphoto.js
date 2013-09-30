@@ -20,7 +20,7 @@ module.exports = function(tool, Photo) {
                 targetUrl: path.join(tool.uploadUri, req.user.id),
             })
 
-            req.filemanager.move(req.param('name'), '', function(err, result) {
+            fm.move(req.param('name'), '', function(err, result) {
                 if (err)
                     res.json(500, {error: err})
                 p.path = path.join(targetDir, req.param('name'))
@@ -46,14 +46,14 @@ module.exports = function(tool, Photo) {
         // },
         edit: function(req, res) {
             res.render('photo/edit', {
-                action: '/jphoto/' + req.obj._id,
+                action: '/jphoto/' + req.obj.id,
                 photo: req.obj
             })
         },
         update: function(req, res) {
             var p = req.obj
             _.extend(p, req.body)
-            p.lastModifiedBy = req.user._id
+            p.lastModifiedBy = req.user.id
             p.uploadAndSave(req.files.image, function(err, doc) {
                 if (err) {
                     res.json(500, {
@@ -67,7 +67,7 @@ module.exports = function(tool, Photo) {
             })
         },
         addComment: function(req, res) {
-            req.obj.addComment(req.param('content'), req.user._id, function(err, doc) {
+            req.obj.addComment(req.param('content'), req.user.id, function(err, doc) {
                 if (err) {
                     console.log(err)
                     res.json(500, {
@@ -94,6 +94,7 @@ module.exports = function(tool, Photo) {
                     res.json(500, {
                         error: err
                     })
+                console.log(objs)
                 res.json(objs)
             })
         },

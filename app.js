@@ -24,7 +24,7 @@ var app = express();
 
 tool.upload.configure({
     uploadDir: tool.uploadDir,
-    uploadUrl: '/uploads',
+    uploadUrl: tool.uploadUri,
     imageVersions: {
         thumbnail: {
             width: 80,
@@ -52,7 +52,7 @@ app.set('views', __dirname + '/src/views');
 app.set('view engine', 'jade');
 app.use(express.favicon());
 app.use(express.logger('dev'));
-app.use('/uploads', tool.upload.fileHandler());
+app.use(tool.uploadUri, tool.upload.fileHandler());
 app.use(express.bodyParser({
     uploadDir: tool.uploadDir
 }));

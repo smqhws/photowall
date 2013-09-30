@@ -69,11 +69,6 @@ module.exports = function(mongoose, tool) {
         authenticate: function(password) {
             return this.encryptPassword(password) === this.hash
         },
-        getUri:function(){
-            if(!this.profile.path)
-                return ''
-            return tool.getUri(this,'profile.path')
-        },
         uploadAndSave:function(file,cb){
             return tool.uploadAndSave(this,'profile.path',file,cb)
         },
@@ -81,7 +76,19 @@ module.exports = function(mongoose, tool) {
             return this.profile.name || this.email
         }
     }
-
+    UserSchema.virtual('profile.uri').get(function(){
+        return tool.getUri(this,'profile.path')
+    })
+    var schemaTrans = function (doc, ret, option) {
+        if (ret.id && ret._id) delete ret._id
+        if (ret.profile.path) delete ret.profile.path
+    }
+    UserSchema.set('toObject', {
+        virtuals: true
+    })
+    UserSchema.set('toJSON', {
+        virtuals: true
+    })
     UserSchema.path('email').validate(function(val) {
         return tool.is(val, tool.email)
     }, 'email format error')

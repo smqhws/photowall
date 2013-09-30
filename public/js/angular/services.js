@@ -8,7 +8,19 @@
 angular.module('photowall.services', []).value('version', '0.1')
     .factory('Photo', ['$resource',
         function(resource) {
-            return resource('/jphoto/:photoId',{photoId:'@_id'})
+            return resource('/jphoto/:photoId', {
+                photoId: '@id'
+            })
+        }
+    ])
+    .factory('GUID', [
+        function() {
+            function G() {
+                return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+            }
+            var guid = (G() + G() + G() + G() +
+                G() + G() + G()).toLowerCase();
+            return guid
         }
     ])
     .factory('PhotoScroll', ['$http',
@@ -51,13 +63,13 @@ angular.module('photowall.services', []).value('version', '0.1')
                 this.pageIndex++
                 var photoUrl = "/jphoto?pageIndex=" + this.pageIndex + '&pageSize=' + this.pageSize
                 var photoCountUrl = '/jphoto/count'
-                
+
                 http.get(photoUrl).success(function(objs) {
                     for (var i = 0; i < objs.length; i++) {
                         this.items.push(objs[i])
                     }
-                    http.get(photoCountUrl).success(function(data){
-                        this.pageCount = Math.ceil(data.count/this.pageSize)
+                    http.get(photoCountUrl).success(function(data) {
+                        this.pageCount = Math.ceil(data.count / this.pageSize)
                         this.bigPageCount = Math.ceil(data.count / this.bigPageSize)
                         if (this.pageIndex >= this.pageCount || this.pageIndex * this.pageSize >= this.bigPageSize) {
                             this.full = true

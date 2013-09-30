@@ -10,7 +10,8 @@ var path = require('path')
 var passport = require('passport')
 var OtherError = require('./error').OtherError
 var upload = require('jquery-file-upload-middleware')
-var uploadDir = path.join(__dirname,'/public/uploads')
+var uploadUri = '/uploads'
+var uploadDir = path.join(__dirname,'/public',uploadUri)
 var tool = module.exports = {
     _: _,
     sizeOf: sizeOf,
@@ -24,7 +25,7 @@ var tool = module.exports = {
     defaultPageSize: 16,
     upload: upload,
     uploadDir:uploadDir,
-    uploadUri:'/uploads',
+    uploadUri:uploadUri,
 
     email: /^[a-z0-9A-Z_]+@[a-z0-9A-Z]+(\.[a-z0-9A-Z]+)+$/,
     phone: /^\d{11}$/,
@@ -36,8 +37,8 @@ var tool = module.exports = {
             return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
         }
 
-        var guid = (G() + G() + "-" + G() + "-" + G() + "-" +
-            G() + "-" + G() + G() + G()).toLowerCase();
+        var guid = (G() + G()  + G()  + G()  +
+            G()  + G() + G() ).toLowerCase();
 
         return guid
     },
@@ -129,8 +130,10 @@ var tool = module.exports = {
         res.render(page, obj)
     },
     getUri: function(self, key) {
-        var p = JSON.stringify(self.get(key)).slice(tool.uploadDir.length,-1)
-        return path.join(this.uploadUri, p)
+        if (!self.get(key))
+            return ''
+        var startIndex = self.get(key).indexOf(tool.uploadUri)
+        return self.get(key).slice(startIndex)
     },
     uploadAndSave: function(self, key, file, cb) {
         if (!file)

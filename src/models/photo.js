@@ -84,6 +84,22 @@ module.exports = function(mongoose, tool) {
         return tool.is(val)
     }, 'Path can\'t be empty')
 
+    PhotoSchema.virtual('uri').get(function() {
+        return tool.getUri(this,'path')
+    })
+
+    var schemaTrans = function (doc, ret, option) {
+        if (ret.id && ret._id) delete ret._id
+        if (ret.path) delete ret.path
+    }
+    PhotoSchema.set('toObject', {
+        virtuals: true,
+        transform: schemaTrans
+    })
+    PhotoSchema.set('toJSON', {
+        virtuals: true,
+        transform: schemaTrans
+    })
 
     PhotoSchema.pre('save', function(next) {
         if (!this.isNew)
@@ -99,9 +115,6 @@ module.exports = function(mongoose, tool) {
         })
     })
     PhotoSchema.methods = {
-        getUri: function() {
-            return tool.getUri(this, 'path')
-        },
         uploadAndSave: function(file, cb) {
             return tool.uploadAndSave(this, 'path', file, cb)
         },
@@ -128,35 +141,21 @@ module.exports = function(mongoose, tool) {
                 'createdDate': -1
             }
 
-            this.find(where, '_id path')
+            this.find(where, 'path')
                 .populate('addedBy', 'email profile')
                 .populate('comment.addedBy', 'email profile')
                 .populate('tag.addedBy', 'email profile')
                 .sort(sort)
                 .limit(obj.pageSize)
                 .skip(obj.pageSize * obj.pageIndex)
-                .exec(function(err, docs) {
-                    if (err)
-                        return cb(err)
-                    _.each(docs, function(element) {
-                        element.path = element.getUri()
-                        //element.addedBy.profile.path=element.addedBy.getUri()
-                    })
-                    cb(null,docs)
-                })
+                .exec(cb)
         },
         load: function(id, cb) {
             this.findById(id)
                 .populate('addedBy', 'email profile')
                 .populate('comment.addedBy', 'email profile')
                 .populate('tag.addedBy', 'email profile')
-                .exec(function(err,doc){
-                    if(err)
-                        return cb(err)
-                    doc.path = doc.getUri()
-
-                    cb(null,doc)
-                })
+                .exec(cb)
         }
     }
     mongoose.model('Photo', PhotoSchema)

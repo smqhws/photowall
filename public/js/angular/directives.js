@@ -18,7 +18,8 @@ angular.module('photowall.directives', [])
                 replace: true,
                 scope: {
                     items: '=',
-                    setCurrent: '&'
+                    setCurrent: '&',
+                    srcName:'@'
                 },
                 template: '<div class="row pin-wall">' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '</div>',
                 link: function(scope, elm, attrs) {
@@ -40,12 +41,11 @@ angular.module('photowall.directives', [])
                     var load = function(fn) {
                         if (!scope.items || scope.pin_number >= scope.items.length)
                             return
-                        fn(scope.items[scope.pin_number].path,
+                        fn(scope.items[scope.pin_number][scope.srcName],
                             function(img) {
 
                                 if (img.type === "error") {
-                                    console.log("Error loading image " + scope.items[scope.pin_number].path)
-                                    scope.items[scope.pin_number].path = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
+                                    scope.items[scope.pin_number][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
                                 } else {
                                     var wrapper = $('<div class="pin"></div>')
                                     var elm = $('<a ng-click="setCurrent({index:' + scope.pin_number + '})" data-toggle="modal" data-target="#photo-modal"></>')
@@ -68,7 +68,7 @@ angular.module('photowall.directives', [])
                         if (!old.length)
                             return true
                         for (i = 0; i < old.length; i++) {
-                            if (now[i]._id !== old[i]._id)
+                            if (now[i].id !== old[i].id)
                                 break
                         }
                         return i === old.length

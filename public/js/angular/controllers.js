@@ -1,7 +1,6 @@
 'use strict';
 
 /* Controllers */
-var url = '/uploads'
 angular.module('photowall.controllers', []).
 controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll', 'Photo',
     function($scope, $http, PhotoScroll, Photo) {
@@ -13,14 +12,14 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll', 'Photo',
         }
         $scope.$watch('current_index', function() {
             if ($scope.current_index >= 0 && $scope.current_index < $scope.photos.items.length) {
-                $scope.current_id = $scope.photos.items[$scope.current_index]._id
+                $scope.current_id = $scope.photos.items[$scope.current_index].id
                 if (!$scope.photos.items[$scope.current_index].addedBy)
                     Photo.get({
                         photoId: $scope.current_id
                     }, function(data) {
-                        var p = $scope.photos.items[$scope.current_index].path
+                        var p = $scope.photos.items[$scope.current_index].uri
                         $scope.current_photo = data
-                        $scope.current_photo.path = p
+                        $scope.current_photo.uri = p
                         $scope.photos.items[$scope.current_index] = $scope.current_photo
                     })
                 else
@@ -61,22 +60,23 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll', 'Photo',
         $scope.user = null
     }
 ]).controller('DemoFileUploadController', [
-    '$scope', '$http', '$filter', '$window',
+    '$scope', '$http', '$filter', '$window', 'Photo',
     function($scope, $http) {
-        $scope.options = {
-            url: url
-        };
-        $scope.loadingFiles = true;
-        $http.get(url)
-            .then(
-                function(response) {
-                    $scope.loadingFiles = false;
-                    $scope.queue = response.data.files || [];
-                },
-                function() {
-                    $scope.loadingFiles = false;
-                }
-        );
+        $scope.queue = []
+        $scope.allPhoto = function() {
+            var arr = _.clone($scope.queue)
+            _.each(arr, function(elm) {
+                if (elm.url)
+                    $http.post('/jphoto', {
+                        name: elm.name,
+                        desc: elm.desc
+                    }).then(function() {
+                        $scope.clear(elm)
+                    },function() {
+                        elm.error = {msg:'create photo error'}
+                    })
+            })
+        }
     }
 ]).controller('FileDestroyController', [
     '$scope', '$http',
@@ -102,11 +102,14 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll', 'Photo',
                     }
                 );
             };
-            $scope.newPhoto=function(){
-                $http.post('/jphoto',{name:file.name,desc:file.desc}).success(function(data){
+            $scope.newPhoto = function() {
+                $http.post('/jphoto', {
+                    name: file.name,
+                    desc: file.desc
+                }).success(function(data) {
                     $scope.clear(file)
-                }).error(function(data){
-                    file.error = true
+                }).error(function(data) {
+                    file.error = {msg:'create photo err'}
                 })
             }
         } else if (!file.$cancel && !file._index) {
