@@ -43,9 +43,11 @@ var tool = module.exports = {
         return guid
     },
     is: function(str, reg) {
-        if (!str || !str.length)
+        if (!str )
             return false
-        if (reg)
+        if((typeof(str) =="string" || typeof(str)=='array') && !str.length)
+            return false
+        if (typeof(str) =="string" && reg)
             return str.match(reg)
         return true;
     },

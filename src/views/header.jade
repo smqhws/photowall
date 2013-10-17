@@ -11,9 +11,9 @@
             li.active
                 a(href='/') Home
             li.dropdown
-                a.dropdown-toggle(data-toggle='dropdown') Photo
-                    b.caret
-                ul.dropdown-menu
+                a#photo-menu.dropdown-toggle(role='button',data-target="#",data-toggle='dropdown') Photo
+                    span.caret
+                ul.dropdown-menu(role="menu",aria-labelledby="photo-menu")
                     li
                         a(href='/photo') All
                     li
@@ -23,7 +23,15 @@
             li
                 a(href='#') About
         ul.nav.navbar-nav.navbar-right
-            block status
+            li.dropdown(ng-show='user.profile')
+                a#user-menu.dropdown-toggle(role='button',data-target="#",data-toggle='dropdown') {{user.name}}
+                    span.caret
+                ul.dropdown-menu(role="menu",aria-labelledby="user-menu")
+                    li
+                        a(href='/juser/logout') Logout
+
+            li(ng-show='!user.profile')
+                a(data-toggle='modal',data-target='#user-modal') Login
         //
             form.navbar-form.navbar-right(role="search")
                 .input-group

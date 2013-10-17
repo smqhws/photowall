@@ -6,6 +6,30 @@
             ,aria-hidden='true' ) &times;
         h3#eidt-photo-modal-title Upload Photo
     .modal-body
+
+#user-modal.modal.fade(tabindex='-1',data-width='400'
+    ,role='dialog',aria-labelledby='user-modal-title',aria-hidden='true',self-hide)
+    .modal-header
+        button.close(type="button",data-dismiss='modal'
+            ,aria-hidden='true' ) &times;
+        h3#user-modal Log in
+    .modal-body
+        .row
+            .col-md-12
+                form(ng-submit='login()',method='POST',novalidate,name='userForm')
+                    .form-group(ng-class="{'has-error':userForm.email.$invalid && userForm.email.$dirty}")
+                        label.sr-only(for='email') Email
+                        input#email.form-control(required,name='email',type='email',placeHolder="Email",data-ng-model='user.email')
+                        span.help-block(data-ng-repeat='(key,value) in userForm.email.$error',data-ng-show='value && userForm.email.$dirty') {{key+' error'}}
+
+                    .form-group(ng-class="{'has-error':userForm.password.$invalid && userForm.password.$dirty}")
+                        label.sr-only(for='password') Password
+                        input#password.form-control(name='password',required,type='password',ng-minlength='6',ng-maxlength='12',placeHolder='password',data-ng-model='user.password')     
+                        span.help-block(data-ng-repeat='(key,value) in userForm.password.$error',data-ng-show='value && userForm.password.$dirty') {{key+' error'}}
+
+                    div(class='has-error',data-ng-show="info")
+                        span.help-block {{info.message}}
+                    button.btn.btn-default.btn-block(type='submit') Submit
         
 #upload-modal.modal.fade(tabindex='-1',data-width='760'
     ,role='dialog',aria-labelledby='upload-modal-title',aria-hidden='true')

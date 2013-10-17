@@ -36,47 +36,7 @@ module.exports = function(mongoose, tool) {
         lastModifiedBy: {
             type: Schema.Types.ObjectId,
             ref: 'User'
-        },
-        tag: [{
-            content: {
-                type: String,
-                default: ''
-            },
-            plus1: {
-                type: Number,
-                default: 0
-            },
-            minus1: {
-                type: Number,
-                default: 0
-            },
-            addedBy: {
-                type: Schema.Types.ObjectId,
-                ref: 'User'
-            }
-        }],
-        comment: [{
-            content: {
-                type: String,
-                default: ''
-            },
-            plus1: {
-                type: Number,
-                default: 0
-            },
-            minus1: {
-                type: Number,
-                default: 0
-            },
-            addedBy: {
-                type: Schema.Types.ObjectId,
-                ref: 'User'
-            },
-            addedDate: {
-                type: Date,
-                default: Date.now
-            }
-        }]
+        }
     })
 
     //validation
@@ -142,19 +102,14 @@ module.exports = function(mongoose, tool) {
             }
 
             this.find(where, 'path')
-                .populate('addedBy', 'email profile')
-                .populate('comment.addedBy', 'email profile')
-                .populate('tag.addedBy', 'email profile')
                 .sort(sort)
                 .limit(obj.pageSize)
                 .skip(obj.pageSize * obj.pageIndex)
                 .exec(cb)
         },
         load: function(id, cb) {
-            this.findById(id)
+            this.findById(id,'-comment')
                 .populate('addedBy', 'email profile')
-                .populate('comment.addedBy', 'email profile')
-                .populate('tag.addedBy', 'email profile')
                 .exec(cb)
         }
     }

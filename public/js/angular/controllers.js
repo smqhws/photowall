@@ -2,62 +2,134 @@
 
 /* Controllers */
 angular.module('photowall.controllers', []).
-controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll', 'Photo',
-    function($scope, $http, PhotoScroll, Photo) {
+controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
+    function($scope, $http, PhotoScroll,$timeout) {
         $scope.photos = new PhotoScroll()
-        $scope.current_index = -1
-        $scope.page_arr = []
+        $scope.currentPhotoIndex = -1
+        $scope.photoPageArr = []
+        $scope.currentCommentPageArr = []
+        $scope.commentPageSize =5
+        $scope.comments = []
+        $scope.commentPageIndex = []
+        $scope.commentPageCount =[]
+        $scope.loadingPhoto = false
+        $scope.loadingComment = false
         $scope.setCurrent = function(index) {
-            $scope.current_index = index
+            $scope.currentPhotoIndex = index
         }
-        $scope.$watch('current_index', function() {
-            if ($scope.current_index >= 0 && $scope.current_index < $scope.photos.items.length) {
-                $scope.current_id = $scope.photos.items[$scope.current_index].id
-                if (!$scope.photos.items[$scope.current_index].addedBy)
-                    Photo.get({
-                        photoId: $scope.current_id
-                    }, function(data) {
-                        var p = $scope.photos.items[$scope.current_index].uri
-                        $scope.current_photo = data
-                        $scope.current_photo.uri = p
-                        $scope.photos.items[$scope.current_index] = $scope.current_photo
+        $scope.$watch('currentPhotoIndex', function(index) {
+            if (index >= 0 && index < $scope.photos.items.length) {
+                $scope.currentCommentPageIndex = 0
+                $scope.currentPhotoId = $scope.photos.items[index].id
+                if (!$scope.photos.items[index].addedBy){
+                    $scope.loadingPhoto = true
+                    $http.get('/jphoto/'+$scope.currentPhotoId).success(function(data){
+                        var p = $scope.photos.items[index].uri
+                        $scope.currentPhoto = data
+                        $scope.currentPhoto.uri = p
+
+                        $scope.photos.items[index] = $scope.currentPhoto
+                        $scope.loadingPhoto = false
+                    }).error(function(err){
+                        $scope.loadingPhoto = false
                     })
-                else
-                    $scope.current_photo = $scope.photos.items[$scope.current_index]
+                }
+                else{
+                    $scope.currentPhoto = $scope.photos.items[index]
+                }
             }
         })
-        $scope.$watch('photos.bigPageCount', function() {
-            if ($scope.photos.bigPageCount >= 0)
-                $scope.page_arr = _.range(1, $scope.photos.bigPageCount + 1)
+        $scope.$watch('currentCommentPageIndex',function(){
+            if( !$scope.currentCommentPageIndex ){
+                $scope.currentCommentPageIndex = $scope.commentPageIndex[$scope.currentPhotoIndex] = $scope.commentPageIndex[$scope.currentPhotoIndex] || 1
+                $scope.currentComments = []
+                $scope.comments[$scope.currentPhotoIndex]= []
+                $scope.currentCommentPageCount = $scope.commentPageCount[$scope.currentPhotoIndex] = $scope.commentPageCount[$scope.currentPhotoIndex]||0
+            }
+            if(!$scope.currentComments.length && $scope.currentPhotoId)
+                $scope.loadingComment =true
+                $http.get('/jphoto/'+$scope.currentPhotoId+'/comment?pageSize='+$scope.commentPageSize+'&pageIndex='+$scope.currentCommentPageIndex).success(function(data){
+                    if(!data ) return 
+                    for(var i in data){
+                        $scope.currentComments[i]=(data[i]) 
+                        $scope.comments[$scope.currentPhotoIndex][i]=(data[i])
+                    }
+                    $http.get('/jphoto/'+$scope.currentPhotoId+'/comment/count').success(function(data){
+                        $scope.currentCommentPageCount = $scope.commentPageCount[$scope.currentPhotoIndex] = Math.ceil(data.count / $scope.commentPageSize) || 0
+                        $scope.loadingComment= false
+                    }).error(function(err){
+                        $scope.loadingPhoto = false
+                    })
+                }).error(function(err){
+                        $scope.loadingPhoto = false
+                })
         })
+        $scope.$watch('photos.bigPageCount', function(count) {
+            if (count > 0)
+                $scope.photoPageArr = _.range(1, count + 1)
+        })
+        $scope.$watch('currentCommentPageCount',function(count){
+            if(count>=0) 
+                $scope.currentCommentPageArr = _.range(1, count + 1)
+        })
+
         $scope.addComment = function() {
-            $http.post('/photo/' + $scope.current_id + '/comment', {
-                content: $scope.new_comment
+            $http.post('/jphoto/' + $scope.currentPhotoId + '/comment', {
+                content: $scope.newComment
             }).success(function(data) {
-                $scope.current_photo.comment.push(data)
-                $scope.new_comment = ''
+                $scope.newComment = ''
+                //go to last page
             })
         }
         $scope.nextPhoto = function() {
-            $scope.current_index = ($scope.current_index + 1 + $scope.photos.items.length) % $scope.photos.items.length
+            $scope.currentPhotoIndex = ($scope.currentPhotoIndex + 1 + $scope.photos.items.length) % $scope.photos.items.length
         }
         $scope.prePhoto = function() {
-            $scope.current_index = ($scope.current_index - 1 + $scope.photos.items.length) % $scope.photos.items.length
-        }
-        $scope.editPhoto = function() {
-            console.log('..........')
-            var editModal = $('#edit-photo-modal')
-            editModal.load('/jphoto/' + $scope.current_id + '/edit', '', function() {
-                editModal.modal();
-            })
-
+            $scope.currentPhotoIndex = ($scope.currentPhotoIndex - 1 + $scope.photos.items.length) % $scope.photos.items.length
         }
 
+        $scope.selectCommentPage =function(index){
+            $scope.currentComments = []
+            $scope.comments[$scope.currentPhotoIndex]= []
+            $scope.currentCommentPageIndex = $scope.commentPageIndex[$scope.currentPhotoIndex] = index
+        }
+        
+        
+        
     }
-]).controller('GlobalCtrl', ['$scope',
-    function($scope) {
-        $scope.photo = null
-        $scope.user = null
+])
+.controller('GlobalCtrl', ['$scope','$http','$location',
+    function($scope,$http,$location) {
+        $http.get('/juser/status').success(function (data) {
+            $scope.user = data.user||{}
+            console.log(data)
+        }).error(function(err){
+            $scope.user =$scope.user||{}
+            console.log(err)
+        })
+
+        $scope.login=function(){
+            if($scope.userForm.$invalid) {
+                $scope.userForm.email.$dirty = true
+                $scope.userForm.password.$dirty = true
+                return  
+            }
+            $http.post('/juser/login',$scope.user).success(function(data){
+                if(data.user){
+                    $scope.user = data.user
+                    $scope.dismiss()
+                }
+                    
+                if(data.info)
+                    $scope.info = data.info
+                console.log(data)
+            }).error(function(err){
+                console.log(err)
+            })
+        }
+        $scope.$watch('user',function(){
+            $scope.info = false
+        },true)
     }
 ]).controller('DemoFileUploadController', [
     '$scope', '$http', '$filter', '$window', 'Photo',

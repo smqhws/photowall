@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /* Directives */
 
@@ -11,6 +11,62 @@ angular.module('photowall.directives', [])
             }
         }
     ])
+    .directive('selfHide',[
+        function () {
+            return {
+                restrict:'A',
+                link:function(scope,elm,attrs){
+                    scope.dismiss = function() {
+                        $(elm).modal('hide')
+                    }
+                }
+            }
+            
+        }
+    ])
+    .directive('imgloaded', ['$timeout',
+        function($timeout) {
+            return {
+                restrict: 'EA',
+                replace: true,
+                scope: {
+                    imgSrc: "@",
+                    imgClass: '@'
+                },
+                template: '<div ng-class="{loading:loading,broken:broken}"><img class="{{imgClass}} img-center" src="{{imgSrc}}"/></div>',
+                link: function(scope, elm, attrs) {
+                    scope.loading = true
+                    scope.broken = false
+                    scope.$watch('imgSrc', function(src) {
+                        if (!src) return
+                        scope.loading = true
+                        scope.broken = false
+                        var imgLoad = imagesLoaded(elm, function() {
+                            scope.$apply(function() {
+                                if (imgLoad.images.length != 1)
+                                    return
+                                    // $timeout(function(){
+
+                                //  },500)
+                                scope.broken = !imgLoad.images[0].isLoaded
+                                scope.loading = false
+                            })
+                        })
+                    })
+
+                }
+            }
+        }
+    ])
+    .directive('contentloaded', ['$timeout',
+        function($timeout) {
+            return {
+                restrict: 'EA',
+                replace: true,
+                template: '<div><img class="img-responsive img-center" src="/img/ajax-loader.gif"/></div>'
+            }
+        }
+    ])
     .directive('pinerest', ['$compile',
         function($compile) {
             return {
@@ -19,13 +75,14 @@ angular.module('photowall.directives', [])
                 scope: {
                     items: '=',
                     setCurrent: '&',
-                    srcName:'@'
+                    srcName: '@',
+                    modalTarget: '@'
                 },
                 template: '<div class="row pin-wall">' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '</div>',
                 link: function(scope, elm, attrs) {
                     var cols = $(elm).find('.pin-col')
                     var width = cols.width()
-                    scope.pin_number = 0
+                    scope.pinNumber = 0
                     var getMin = function(arr) {
                         var min = 0
                         for (var i = 0; i < arr.length; i++) {
@@ -39,21 +96,21 @@ angular.module('photowall.directives', [])
                         return $(arr[min])
                     }
                     var load = function(fn) {
-                        if (!scope.items || scope.pin_number >= scope.items.length)
+                        if (!scope.items || scope.pinNumber >= scope.items.length)
                             return
-                        fn(scope.items[scope.pin_number][scope.srcName],
+                        fn(scope.items[scope.pinNumber][scope.srcName],
                             function(img) {
 
                                 if (img.type === "error") {
-                                    scope.items[scope.pin_number][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
+                                    scope.items[scope.pinNumber][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
                                 } else {
                                     var wrapper = $('<div class="pin"></div>')
-                                    var elm = $('<a ng-click="setCurrent({index:' + scope.pin_number + '})" data-toggle="modal" data-target="#photo-modal"></>')
+                                    var elm = $('<a ng-click="setCurrent({index:' + scope.pinNumber + '})" data-toggle="modal" data-target="' + scope.modalTarget + '"></>')
                                     elm.append(img)
                                     wrapper.append(elm)
                                     $compile(wrapper)(scope)
                                     getMin(cols.toArray()).append(wrapper)
-                                    scope.pin_number++
+                                    scope.pinNumber++
                                 }
                                 load(loadImage)
                             }, {
@@ -76,10 +133,10 @@ angular.module('photowall.directives', [])
                     scope.$watch('items', function(now, old) {
                         if (!now || !now.length) {
                             cols.empty()
-                            scope.pin_number = 0
+                            scope.pinNumber = 0
                         } else if (!contains(now, old)) {
                             cols.empty()
-                            scope.pin_number = 0
+                            scope.pinNumber = 0
                         }
 
                         load(loadImage)

@@ -46,12 +46,12 @@ module.exports = function(tool, Photo) {
         // },
         edit: function(req, res) {
             res.render('photo/edit', {
-                action: '/jphoto/' + req.obj.id,
-                photo: req.obj
+                action: '/jphoto/' + req.photo.id,
+                photo: req.photo
             })
         },
         update: function(req, res) {
-            var p = req.obj
+            var p = req.photo
             _.extend(p, req.body)
             p.lastModifiedBy = req.user.id
             p.uploadAndSave(req.files.image, function(err, doc) {
@@ -67,7 +67,7 @@ module.exports = function(tool, Photo) {
             })
         },
         addComment: function(req, res) {
-            req.obj.addComment(req.param('content'), req.user.id, function(err, doc) {
+            req.photo.addComment(req.param('content'), req.user.id, function(err, doc) {
                 if (err) {
                     console.log(err)
                     res.json(500, {
@@ -99,7 +99,7 @@ module.exports = function(tool, Photo) {
             })
         },
         show: function(req, res) {
-            res.json(req.obj)
+            setTimeout(function(){res.json(req.photo)},1000)
         },
         load: function(req, res, next, photoId) {
             Photo.load(photoId, function(err, doc) {
@@ -107,7 +107,7 @@ module.exports = function(tool, Photo) {
                     res.json(500, {
                         error: err
                     })
-                req.obj = doc
+                req.photo = doc
                 next()
             })
         }

@@ -14,11 +14,18 @@ var tool = require('./tool')
 //depend on sth
 require('./src/models/photo')(mongoose, tool)
 require('./src/models/user')(mongoose, tool)
+require('./src/models/comment')(mongoose,tool)
+require('./src/models/tag')(mongoose,tool)
 var User = mongoose.model('User')
 var Photo = mongoose.model('Photo')
+var Comment = mongoose.model('Comment')
+var Tag = mongoose.model('Tag')
 var photo = require('./src/controllers/photo')(tool, Photo)
 var user = require('./src/controllers/user')(tool, User)
 var jphoto = require('./src/controllers/jphoto')(tool, Photo)
+var jcomment = require('./src/controllers/jcomment')(tool,Comment)
+var jtag = require('./src/controllers/jtag')(tool,Tag)
+var juser = require('./src/controllers/juser')(tool,User)
 
 var app = express();
 
@@ -92,7 +99,7 @@ app.param(function(name, fn) {
 })
 
 require('./config/passport')(tool.passport, User)
-require('./config/route')(app, tool, user, photo, jphoto)
+require('./config/route')(app, tool, user, photo, jphoto,jcomment,jtag,juser)
 
 
 http.createServer(app).listen(app.get('port'), function() {

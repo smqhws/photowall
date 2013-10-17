@@ -79,6 +79,9 @@ module.exports = function(mongoose, tool) {
     UserSchema.virtual('profile.uri').get(function(){
         return tool.getUri(this,'profile.path')
     })
+    UserSchema.virtual('name').get(function(){
+        return this.profile.name?this.profile.name:this.email
+    })
     var schemaTrans = function (doc, ret, option) {
         if (ret.id && ret._id) delete ret._id
         if (ret.profile.path) delete ret.profile.path

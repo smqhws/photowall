@@ -1,4 +1,4 @@
-module.exports = function(app, tool, user, photo, jphoto) {
+module.exports = function(app, tool, user, photo, jphoto,jcomment,jtag,juser) {
     var passport = tool.passport
 
     app.get('/signup', user.signup)
@@ -46,18 +46,14 @@ module.exports = function(app, tool, user, photo, jphoto) {
     app.post('/jphoto', tool.isAuthenticated, jphoto.create)
     app.put('/jphoto/:photoId', tool.isAuthenticated, jphoto.update)
 
-    app.post('/photo/:photoId/comment', tool.isAuthenticated, jphoto.addComment)
+    app.get('/jphoto/:photoId/comment',tool.isAuthenticated,jcomment.list)
+    app.get('/jphoto/:photoId/comment/count',tool.isAuthenticated,jcomment.count)
+    app.post('/jphoto/:photoId/comment',tool.isAuthenticated,jcomment.create)
 
-    // app.get('/uploads/:filename?', tool.isAuthenticated, function(req, res, next) {
-    //     tool.upload.fileHandler()(req, res, next)
-    // })
-    // app.post('/uploads', tool.isAuthenticated, jphoto.create, function(req, res, next) {
-    //     tool.upload.fileHandler()(req, res, next)
-    // })
-    // app.delete('/uploads/:filename', tool.isAuthenticated, function(req, res, next) {
-    //     tool.upload.fileHandler()(req, res, next)
-    // })
-    
+    app.get('/juser/status',juser.status)
+    app.post('/juser/login',juser.login)
+    app.get('/juser/logout',juser.logout)
+
     app.param('userId', /^[a-z0-9]{24}$/, user.load)
-    app.param('photoId', /^[a-z0-9]{24}$/, photo.load)
+    app.param('photoId', /^[a-z0-9]{24}$/, jphoto.load)
 }
