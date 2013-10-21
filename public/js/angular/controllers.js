@@ -102,7 +102,6 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
     function($scope,$http,$location) {
         $http.get('/juser/status').success(function (data) {
             $scope.user = data.user||{}
-            console.log(data)
         }).error(function(err){
             $scope.user =$scope.user||{}
             console.log(err)
@@ -131,63 +130,121 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
             $scope.info = false
         },true)
     }
-]).controller('DemoFileUploadController', [
-    '$scope', '$http', '$filter', '$window', 'Photo',
-    function($scope, $http) {
-        $scope.queue = []
-        $scope.allPhoto = function() {
-            var arr = _.clone($scope.queue)
-            _.each(arr, function(elm) {
-                if (elm.url)
-                    $http.post('/jphoto', {
-                        name: elm.name,
-                        desc: elm.desc
-                    }).then(function() {
-                        $scope.clear(elm)
-                    },function() {
-                        elm.error = {msg:'create photo error'}
-                    })
+])
+.controller('UploadController', ["$scope","$fileUploader","$http","GUID",function ($scope, $fileUploader,$http,GUID) {
+    'use strict';
+    // create a uploader with options
+    var uploader = $scope.uploader = $fileUploader.create({
+        scope: $scope,                          // to automatically update the html. Default: $rootScope
+        url: 'https://smqhws.s3.amazonaws.com',
+        filters: [
+            function (item) {                    // first user filter
+                console.log('filter1');
+                return true;
+            }
+        ]
+    });
+
+    // ADDING FILTER
+
+    uploader.filters.push(function (item) { // second user filter
+        console.log('filter2');
+        return true;
+    });
+
+    // REGISTER HANDLERS
+
+    uploader.bind('afteraddingfile', function (event, item) {
+        $http.get('/jphoto/s3?guid='+ GUID).success(function(retdata){
+            item.formData = retdata
+        })
+    });
+
+    uploader.bind('afteraddingall', function (event, items) {
+        for(var i in items){
+            $http.get('/jphoto/s3?guid='+ GUID).success(function(retdata){
+                items[i].formData = retdata
             })
         }
-    }
-]).controller('FileDestroyController', [
-    '$scope', '$http',
-    function($scope, $http) {
-        var file = $scope.file,
-            state;
-        if (file.url) {
-            file.$state = function() {
-                return state;
-            };
-            file.$destroy = function() {
-                state = 'pending';
-                return $http({
-                    url: file.deleteUrl,
-                    method: file.deleteType
-                }).then(
-                    function() {
-                        state = 'resolved';
-                        $scope.clear(file);
-                    },
-                    function() {
-                        state = 'rejected';
-                    }
-                );
-            };
-            $scope.newPhoto = function() {
-                $http.post('/jphoto', {
-                    name: file.name,
-                    desc: file.desc
-                }).success(function(data) {
-                    $scope.clear(file)
-                }).error(function(data) {
-                    file.error = {msg:'create photo err'}
-                })
-            }
-        } else if (!file.$cancel && !file._index) {
-            file.$cancel = function() {
-                $scope.clear(file);
-            };
-        }
-    }
-]);
+    });
+
+    uploader.bind('success', function (event, xhr, item) {
+        if(!X2JS) return 
+        var resJson = new X2JS().xml_str2json(xhr.response)
+        item.file.name = resJson.PostResponse.Key.slice(resJson.PostResponse.Key.lastIndexOf("/")+1)
+        item.uri = resJson.PostResponse.Location
+
+    });
+
+    uploader.bind('error',function(event,xhr,item){
+        if(!X2JS) return 
+        var resJson = new X2JS().xml_str2json(xhr.response)
+        item.error = resJson.Error.Code
+    })
+
+    uploader.bind('complete', function (event, xhr, item) {
+        console.log('Complete: ' + xhr.response, item);
+    });
+
+
+}]);
+// .controller('DemoFileUploadController', [
+//     '$scope', '$http', '$filter', '$window', 'Photo',
+//     function($scope, $http) {
+//         $scope.queue = []
+//         $scope.allPhoto = function() {
+//             var arr = _.clone($scope.queue)
+//             _.each(arr, function(elm) {
+//                 if (elm.url)
+//                     $http.post('/jphoto', {
+//                         name: elm.name,
+//                         desc: elm.desc
+//                     }).then(function() {
+//                         $scope.clear(elm)
+//                     },function() {
+//                         elm.error = {msg:'create photo error'}
+//                     })
+//             })
+//         }
+//     }
+// ]).controller('FileDestroyController', [
+//     '$scope', '$http',
+//     function($scope, $http) {
+//         var file = $scope.file,
+//             state;
+//         if (file.url) {
+//             file.$state = function() {
+//                 return state;
+//             };
+//             file.$destroy = function() {
+//                 state = 'pending';
+//                 return $http({
+//                     url: file.deleteUrl,
+//                     method: file.deleteType
+//                 }).then(
+//                     function() {
+//                         state = 'resolved';
+//                         $scope.clear(file);
+//                     },
+//                     function() {
+//                         state = 'rejected';
+//                     }
+//                 );
+//             };
+//             $scope.newPhoto = function() {
+//                 $http.post('/jphoto', {
+//                     name: file.name,
+//                     desc: file.desc
+//                 }).success(function(data) {
+//                     $scope.clear(file)
+//                 }).error(function(data) {
+//                     file.error = {msg:'create photo err'}
+//                 })
+//             }
+//         } else if (!file.$cancel && !file._index) {
+//             file.$cancel = function() {
+//                 $scope.clear(file);
+//             };
+//         }
+//     }
+// ]);

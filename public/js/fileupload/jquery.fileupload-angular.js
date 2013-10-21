@@ -31,6 +31,42 @@
     'use strict';
 
     angular.module('blueimp.fileupload', [])
+        .provider('dtool',function(){
+            function G() {
+                return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+            }
+            this.$get = function() {
+                return {
+                    guid: function() {
+                        return (G() + G() + G() + G() + G() + G() + G()).toLowerCase()
+                    },
+                    parseRes:function (data) {
+                        var x2js = new X2JS();
+                        var resJson = x2js.xml_str2json(data.jqXHR.responseText)
+                        var files = false
+                        if(resJson && resJson.html && resJson.html.body && resJson.html.body.parsererror)
+                        {
+                            files = data.result && data.result.files;
+                        }
+                        else{
+                            var PostResponse = resJson.PostResponse || {}
+                            var key = PostResponse.key || ''
+                            var Location = PostResponse.Location || ''
+                            var nameIndex = key.lastIndexOf("/")+1
+                            var name = key.slice(nameIndex)
+                            files = []
+                            files.push({
+                                name : name,
+                                size : data.result.files[0].size,
+                                url : Location,
+                                deleteUrl : Location,
+                                deleteType :"DELETE"
+                            })
+                        }
+                    }
+                }
+            }
+        })
 
         // The fileUpload service provides configuration options
         // for the fileUpload directive and default handlers for
@@ -67,7 +103,18 @@
                         function () {
                             var file = data.files[0],
                                 submit = function () {
-                                    return data.submit();
+                                    var $http = angular.injector(['ng']).get('$http')
+                                    var guid = angular.injector(['ng',"blueimp.fileupload"]).get('guid')
+                                    $http.get('/jphoto/s3?guid='+dtool.guid()).success(function(retdata){
+                                        data.formData = retdata
+                                        var _file = data.files[0]||{}
+                                        _file.name = ret.key
+                                        console.log(data.files)
+                                        console.log(data.index)
+                                        data.submit()
+                                    })
+
+                                    // return data.submit();
                                 };
                             angular.forEach(data.files, function (file, index) {
                                 file._index = index;
@@ -86,7 +133,7 @@
                                 return data.abort();
                             };
                             if (file.$state() === 'rejected') {
-                                file._$submit = submit;
+                                file._$submit = submit
                             } else {
                                 file.$submit = submit;
                             }

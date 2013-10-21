@@ -54,6 +54,8 @@ module.exports = function(app, tool, user, photo, jphoto,jcomment,jtag,juser) {
     app.post('/juser/login',juser.login)
     app.get('/juser/logout',juser.logout)
 
+    app.get('/jphoto/s3',tool.isAuthenticated,jphoto.s3Field)
+
     app.param('userId', /^[a-z0-9]{24}$/, user.load)
     app.param('photoId', /^[a-z0-9]{24}$/, jphoto.load)
 }

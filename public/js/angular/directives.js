@@ -33,7 +33,7 @@ angular.module('photowall.directives', [])
                     imgSrc: "@",
                     imgClass: '@'
                 },
-                template: '<div ng-class="{loading:loading,broken:broken}"><img class="{{imgClass}} img-center" src="{{imgSrc}}"/></div>',
+                template: '<div><img class="img-center" src="http://www.placehold.it/240x320/EFEFEF/AAAAAA&text=no+image" ng-show="broken"/><img class="img-center" src="/img/ajax-loader.gif" ng-show="loading"><div><img class="{{imgClass}} img-center" src="{{imgSrc}}"/></div></div>',
                 link: function(scope, elm, attrs) {
                     scope.loading = true
                     scope.broken = false
@@ -41,13 +41,10 @@ angular.module('photowall.directives', [])
                         if (!src) return
                         scope.loading = true
                         scope.broken = false
-                        var imgLoad = imagesLoaded(elm, function() {
+                        var imgLoad = imagesLoaded($(elm).children('div'), function() {
                             scope.$apply(function() {
                                 if (imgLoad.images.length != 1)
                                     return
-                                    // $timeout(function(){
-
-                                //  },500)
                                 scope.broken = !imgLoad.images[0].isLoaded
                                 scope.loading = false
                             })

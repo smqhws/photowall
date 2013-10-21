@@ -93,10 +93,10 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
-.loading {
+/*.loading {
   background-repeat: no-repeat;
   background-attachment:fixed;
-  background-position:center;
+  background-position:center center;
   width: 100%;
   background-image: url('/img/ajax-loader.gif');
 }
@@ -105,10 +105,32 @@ body {
   background-image: url('http://www.placehold.it/240x320/EFEFEF/AAAAAA&text=no+image');
   width: 100%;
   background-attachment:fixed;
-  background-position:center;
+  background-position:center center;
   background-repeat: no-repeat;
-}
-.loading img,
+}*/
+/*.loading img,
 .broken img {
   opacity: 0;
+}*/
+
+.my-drop-zone { border: dotted 3px lightgray; }
+.ng-file-over { border: dotted 3px red; } /* Default class applied to drop zones on over */
+.another-file-over-class { border: dotted 3px green; }
+
+.btn-upload{
+    position: relative;
+    overflow: hidden;
+    margin: 10px;
+}
+
+.btn-upload input{
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
 }

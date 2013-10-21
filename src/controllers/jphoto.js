@@ -4,12 +4,41 @@ module.exports = function(tool, Photo) {
     var check = tool.check
     var path = tool.path
     var fs = tool.fs
+    var s3 = tool.s3
+    var crypto = tool.crypto
     result = {
         add: function(req, res) {
             res.render('photo/edit', {
                 action: '/jphoto',
                 photo: new Photo()
             })
+        },
+        s3Field:function(req,res){
+            var key = tool.project_name+"/upload/"+tool.guid()
+            var signatureObject = {
+                expiration:s3.expiration_date(),
+                conditions:[
+                    {bucket:s3.bucket},
+                    {key:key},
+                    {acl:s3.acl},
+                    ['starts-with','$Content-Type',s3.content_type],
+                    {success_action_status:s3.success_action_status}
+                ]
+            }
+            var signatureString = JSON.stringify(signatureObject)
+            var policy = new Buffer(signatureString).toString('base64').replace(/\n|\r/, '');
+            var hmac = crypto.createHmac("sha1", s3.secret_key);
+            var hash2 = hmac.update(policy);
+            var signature = hmac.digest(encoding="base64");
+            res.json([
+                {key:key},
+                {AWSAccessKeyId:s3.access_key_id},
+                {acl:s3.acl},
+                {success_action_status:s3.success_action_status},
+                {policy:policy},
+                {signature:signature},
+                {'Content-Type':s3.content_type}
+            ])
         },
         create: function(req, res) {
             var p = new Photo(req.body)

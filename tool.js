@@ -12,6 +12,31 @@ var OtherError = require('./error').OtherError
 var upload = require('jquery-file-upload-middleware')
 var uploadUri = '/uploads'
 var uploadDir = path.join(__dirname,'/public',uploadUri)
+var project_name = "photowall"
+var crypto = require("crypto")
+var s3 = {
+    access_key_id: "AKIAIDWDH333SR6MODMQ",
+    secret_key: "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",
+    bucket: "smqhws",
+    acl: "public-read",
+    https: "false",
+    error_message: "",
+    content_type:"image",
+    success_action_status:"201",
+    pad: function(n) {
+        if ((n+"").length == 1) {
+            return "0" + n;
+        }
+        return ""+n;
+    },
+    expiration_date: function() {
+        var now = new Date();
+        var date = new Date( now.getTime() + (3600 * 24 * 7) );
+        var ed = date.getFullYear() + "-" + this.pad(date.getMonth()+1) + "-" + this.pad(date.getDate());
+            ed += "T" + this.pad(date.getHours()) + ":" + this.pad(date.getMinutes()) + ":" + this.pad(date.getSeconds()) + ".000Z";
+        return ed;
+    }
+}
 var tool = module.exports = {
     _: _,
     sizeOf: sizeOf,
@@ -19,6 +44,8 @@ var tool = module.exports = {
     check: check,
     fs: fs,
     path: path,
+    crypto:crypto,
+    s3:s3,
     passport: passport,
     OtherError: OtherError,
     imager: imager,
@@ -26,6 +53,7 @@ var tool = module.exports = {
     upload: upload,
     uploadDir:uploadDir,
     uploadUri:uploadUri,
+    project_name:project_name,
 
     email: /^[a-z0-9A-Z_]+@[a-z0-9A-Z]+(\.[a-z0-9A-Z]+)+$/,
     phone: /^\d{11}$/,
