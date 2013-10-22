@@ -49,44 +49,74 @@
                         span Add 
                         input(ng-file-select,type="file",multiple)
                 .col-md-8(style="margin-bottom: 40px;")
-                    h3 Upload queue
-                    p Queue length:{{uploader.queue.length}}
-                    table.table
-                        thead
-                            tr
-                                th(width="50%") Name
-                                th Size
-                                th Status
-                                th Actions
-                        tbody
-                            tr(ng-repeat="item in uploader.queue")
-                                td
-                                    strong(ng-show="!item.uri") {{item.file.name}}
-                                    a(ng-show="item.uri",ng-href="{{item.uri}}")
-                                        imgloaded(img-src="{{item.uri}}",img-class="img-responsive",style="width:80px;")
-                                td(nowrap) {{item.file.size/1024|number:2}}KB
-                                td
-                                    .progress.progress-striped(style="margin-bottom:0;",ng-show="item.isUploading")
-                                        .progress-bar.progress-bar-success(role="progressbar",ng-style="{'width':item.progress+'%'}")
-                                    .has-error(ng-show="item.isUploaded && item.error")
-                                        i.glyphicon.glyphicon-remove {{" "+item.error}}
-                                    .has-sccuess(ng-show="item.isUploaded && !item.error")
-                                        i.glyphicon.glyphicon-ok
-                                td(nowrap)
-                                    button.btn.btn-success.btn-xs(type="button",ng-click="item.upload()",ng-disabled="item.isUploaded")
-                                        span.glyphicon.glyphicon-upload &nbsp;Upload
-                                    button.btn.btn-danger.btn-xs(type="button",ng-click="item.remove()")
-                                        span.glyphicon.glyphicon-trash &nbsp;Remove
+                    .row
+                        h3 Upload queue
+                        p Queue length:{{uploader.queue.length}}
+                        button.btn.btn-success.btn-s(type="button",ng-click="uploader.uploadAll()",ng-disabled="!uploader.getNotUploadedItems().length")
+                            span.glyphicon.glyphicon-upload &nbsp;Upload all
+                        button.btn.btn-danger.btn-s(type="button",ng-click="uploader.clearQueue()",ng-disabled="!uploader.queue.length")
+                            span.glyphicon.glyphicon-trash &nbsp;Remove all
+                    .row
+                        .col-md-3 Picture
+                        .col-md-2 Size
+                        .col-md-4 Status
+                        .col-md-3 Actions
+                    .row(ng-repeat="item in uploader.queue",ng-class="{'text-danger':item.error}")
+                        .col-md-3
+                            abbr(ng-show="!item.uri",title="{{item.file.name}}") {{item.file.name | limitTo:10}}
+                            a(ng-show="item.uri",ng-href="{{item.uri}}")
+                                imgloaded(img-src="{{item.uri}}",img-class="img-responsive",img-width="80px")
+                        .col-md-2 {{item.file.size/1024|number:2}}KB
+                        .col-md-4
+                            .progress.progress-striped(style="margin-bottom:0;",ng-show="item.isUploading")
+                                .progress-bar.progress-bar-success(role="progressbar",ng-style="{'width':item.progress+'%'}")
+                            div(ng-show="item.error")
+                                abbr(title="{{item.error}}") 
+                                    i.glyphicon.glyphicon-remove 
+                            div(ng-show="!item.isUploading && !item.isUploaded")
+                                imgloaded(ng-show="isLoading",img-src="/img/ajax-loader.gif")
+                                div(ng-show="!isLoading") Ready
+                            div(ng-show="item.isUploaded && !item.error")
+                                i.glyphicon.glyphicon-ok
+                        .col-md-3
+                            button.btn.btn-success.btn-xs(type="button",ng-click="item.upload()",ng-disabled="item.isUploaded")
+                                span.glyphicon.glyphicon-upload &nbsp;Upload
+                            button.btn.btn-danger.btn-xs(type="button",ng-click="item.remove()")
+                                span.glyphicon.glyphicon-trash &nbsp;Remove
+                    //
+                        table.table
+                            thead
+                                tr
+                                    th Picture
+                                    th Size
+                                    th Status
+                                    th Actions
+                            tbody
+                                tr(ng-repeat="item in uploader.queue",ng-class="{danger:item.error}")
+                                    td
+                                        strong(ng-show="!item.uri") {{item.file.name}}
+                                        a(ng-show="item.uri",ng-href="{{item.uri}}")
+                                            imgloaded(img-src="{{item.uri}}",img-class="img-responsive",img-width="80px")
+                                    td(nowrap) {{item.file.size/1024|number:2}}KB
+                                    td
+                                        .progress.progress-striped(style="margin-bottom:0;",ng-show="item.isUploading")
+                                            .progress-bar.progress-bar-success(role="progressbar",ng-style="{'width':item.progress+'%'}")
+                                        .has-error(ng-show="item.error")
+                                            i.glyphicon.glyphicon-remove 
+                                            p {{item.error}}
+                                        .has-sccuess(ng-show="item.isUploaded && !item.error")
+                                            i.glyphicon.glyphicon-ok
+                                    td(nowrap)
+                                        button.btn.btn-success.btn-xs(type="button",ng-click="item.upload()",ng-disabled="item.isUploaded")
+                                            span.glyphicon.glyphicon-upload &nbsp;Upload
+                                        button.btn.btn-danger.btn-xs(type="button",ng-click="item.remove()")
+                                            span.glyphicon.glyphicon-trash &nbsp;Remove
 
                     div
                         div(ng-show="uploader.isUploading")
                             p Queue progress:
                                 .progress.progress-striped(style="")
                                     .progress-bar.progress-bar-success(role="progressbar",ng-style="{'width':uploader.progress+'%'}")
-                        button.btn.btn-success.btn-s(type="button",ng-click="uploader.uploadAll()",ng-disabled="!uploader.getNotUploadedItems().length")
-                            span.glyphicon.glyphicon-upload &nbsp;Upload all
-                        button.btn.btn-danger.btn-s(type="button",ng-click="uploader.clearQueue()",ng-disabled="!uploader.queue.length")
-                            span.glyphicon.glyphicon-trash &nbsp;Remove all
 
 
 

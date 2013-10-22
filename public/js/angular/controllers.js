@@ -155,21 +155,36 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
     // REGISTER HANDLERS
 
     uploader.bind('afteraddingfile', function (event, item) {
+        if(typeof(X2JS)=='undefined' || !X2JS) {
+            item.upload = function(){}
+            return item.error="JS library load error,Please refresh the page!"
+        }
+        item.isLoading = true
         $http.get('/jphoto/s3?guid='+ GUID).success(function(retdata){
             item.formData = retdata
+            item.isLoading = false
         })
     });
 
     uploader.bind('afteraddingall', function (event, items) {
-        for(var i in items){
-            $http.get('/jphoto/s3?guid='+ GUID).success(function(retdata){
-                items[i].formData = retdata
+        if(typeof(X2JS)=='undefined' || !X2JS) {
+            angular.forEach(items,function(key,value){
+                value.upload = function  () {}
+                items.error = "JS library load error,Please refresh the page!"
             })
+            return 
         }
+        angular.forEach(items,function(key,value){
+            value.isLoading = true
+            $http.get('/jphoto/s3?guid='+ GUID).success(function(retdata){
+                value.formData = retdata
+                value.isLoading = false
+            })
+        })
+
     });
 
     uploader.bind('success', function (event, xhr, item) {
-        if(!X2JS) return 
         var resJson = new X2JS().xml_str2json(xhr.response)
         item.file.name = resJson.PostResponse.Key.slice(resJson.PostResponse.Key.lastIndexOf("/")+1)
         item.uri = resJson.PostResponse.Location
@@ -177,15 +192,9 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
     });
 
     uploader.bind('error',function(event,xhr,item){
-        if(!X2JS) return 
         var resJson = new X2JS().xml_str2json(xhr.response)
         item.error = resJson.Error.Code
     })
-
-    uploader.bind('complete', function (event, xhr, item) {
-        console.log('Complete: ' + xhr.response, item);
-    });
-
 
 }]);
 // .controller('DemoFileUploadController', [

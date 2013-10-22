@@ -108,10 +108,10 @@ body {
   background-position:center center;
   background-repeat: no-repeat;
 }*/
-/*.loading img,
+.loading img,
 .broken img {
   opacity: 0;
-}*/
+}
 
 .my-drop-zone { border: dotted 3px lightgray; }
 .ng-file-over { border: dotted 3px red; } /* Default class applied to drop zones on over */

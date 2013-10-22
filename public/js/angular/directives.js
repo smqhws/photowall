@@ -31,12 +31,14 @@ angular.module('photowall.directives', [])
                 replace: true,
                 scope: {
                     imgSrc: "@",
-                    imgClass: '@'
+                    imgClass: '@',
+                    imgWidth:"@"
                 },
-                template: '<div><img class="img-center" src="http://www.placehold.it/240x320/EFEFEF/AAAAAA&text=no+image" ng-show="broken"/><img class="img-center" src="/img/ajax-loader.gif" ng-show="loading"><div><img class="{{imgClass}} img-center" src="{{imgSrc}}"/></div></div>',
+                template: '<div><img class="img-center" alt="load error" src="http://www.placehold.it/240x320/EFEFEF/AAAAAA&text=no+image" ng-show="broken"/><img class="img-center" alt="loading now" src="/img/ajax-loader.gif" ng-show="loading"><div ng-class="{loading:loading,broken:broken}"><img class="{{imgClass}} img-center" src="{{imgSrc}}" width="{{imgWidth}}" /></div></div>',
                 link: function(scope, elm, attrs) {
                     scope.loading = true
                     scope.broken = false
+                    if(!scope.imgSrc) scope.imgSrc = ''
                     scope.$watch('imgSrc', function(src) {
                         if (!src) return
                         scope.loading = true
