@@ -56,6 +56,8 @@
                             span.glyphicon.glyphicon-upload &nbsp;Upload all
                         button.btn.btn-danger.btn-s(type="button",ng-click="uploader.clearQueue()",ng-disabled="!uploader.queue.length")
                             span.glyphicon.glyphicon-trash &nbsp;Remove all
+                        button.btn.btn-success.btn-xs(type="button",ng-click="uploader.createAll()",ng-disabled="item.error || item.isUploading || item.isLoading || !item.isUploaded")
+                            span.glyphicon.glyphicon-ok &nbsp;Create all
                     .row
                         .col-md-3 Picture
                         .col-md-2 Size
@@ -73,16 +75,21 @@
                             div(ng-show="item.error")
                                 abbr(title="{{item.error}}") 
                                     i.glyphicon.glyphicon-remove 
-                            div(ng-show="!item.isUploading && !item.isUploaded")
+                            div(ng-show="!item.isUploading && !item.isUploaded && !item.error")
                                 imgloaded(ng-show="isLoading",img-src="/img/ajax-loader.gif")
                                 div(ng-show="!isLoading") Ready
                             div(ng-show="item.isUploaded && !item.error")
-                                i.glyphicon.glyphicon-ok
+                                //- i.glyphicon.glyphicon-ok
+                                .form-group
+                                    label.sr-only(for='{{"desc"+$index}}')
+                                    textarea.form-control(type='text',data-ng-model='item.desc',id='{{"desc"+$index}}',rows='2')
                         .col-md-3
                             button.btn.btn-success.btn-xs(type="button",ng-click="item.upload()",ng-disabled="item.isUploaded")
                                 span.glyphicon.glyphicon-upload &nbsp;Upload
                             button.btn.btn-danger.btn-xs(type="button",ng-click="item.remove()")
                                 span.glyphicon.glyphicon-trash &nbsp;Remove
+                            button.btn.btn-success.btn-xs(type="button",ng-click="item.create()",ng-disabled="item.error || item.isUploading || item.isLoading || !item.isUploaded")
+                                span.glyphicon.glyphicon-ok &nbsp;Create
                     //
                         table.table
                             thead

@@ -11,7 +11,7 @@ module.exports = function(tool, Comment) {
                     res.json(500, {
                         error: err
                     })
-                setTimeout(function(){res.json(objs)},2000)
+                res.json(objs)
             })
         },
         count:function  (req,res) {

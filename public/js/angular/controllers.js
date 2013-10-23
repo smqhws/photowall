@@ -14,9 +14,6 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
         $scope.commentPageCount =[]
         $scope.loadingPhoto = false
         $scope.loadingComment = false
-        $scope.setCurrent = function(index) {
-            $scope.currentPhotoIndex = index
-        }
         $scope.$watch('currentPhotoIndex', function(index) {
             if (index >= 0 && index < $scope.photos.items.length) {
                 $scope.currentCommentPageIndex = 0
@@ -144,6 +141,12 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
             }
         ]
     });
+    uploader.createAll = function(){
+        var queue = uploader.queue
+        angular.forEach(queue,function (value) {
+            value.create && value.create()
+        })
+    }
 
     // ADDING FILTER
 
@@ -154,17 +157,24 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
 
     // REGISTER HANDLERS
 
-    uploader.bind('afteraddingfile', function (event, item) {
-        if(typeof(X2JS)=='undefined' || !X2JS) {
-            item.upload = function(){}
-            return item.error="JS library load error,Please refresh the page!"
-        }
-        item.isLoading = true
-        $http.get('/jphoto/s3?guid='+ GUID).success(function(retdata){
-            item.formData = retdata
-            item.isLoading = false
-        })
-    });
+    // uploader.bind('afteraddingfile', function (event, item) {
+    //     if(typeof(X2JS)=='undefined' || !X2JS) {
+    //         item.upload = function(){}
+    //         return item.error="JS library load error,Please refresh the page!"
+    //     }
+    //     console.log(item)
+    //     item.isLoading = true
+    //     var filesize = item.file.size
+    //     $http.get('/jphoto/s3?guid='+ GUID + "&filesize=" + filesize).success(function(retdata){
+    //         item.formData = retdata
+    //         items.formData.filesize = filesize
+    //         item.isLoading = false
+    //     }).error(function(err){
+    //         item.error = err.error
+    //         value.upload = function  () {}
+    //         item.isLoading= false
+    //     })
+    // });
 
     uploader.bind('afteraddingall', function (event, items) {
         if(typeof(X2JS)=='undefined' || !X2JS) {
@@ -174,11 +184,17 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
             })
             return 
         }
-        angular.forEach(items,function(key,value){
+        angular.forEach(items,function(value,key){
             value.isLoading = true
-            $http.get('/jphoto/s3?guid='+ GUID).success(function(retdata){
+            var filesize = value.file.size
+            $http.get('/jphoto/s3?guid='+ GUID + "&filesize=" + filesize).success(function(retdata){
                 value.formData = retdata
+                value.formData.push({filesize : filesize})
                 value.isLoading = false
+            }).error(function(err){
+                value.error = err.error
+                value.upload = function  () {}
+                value.isLoading= false
             })
         })
 
@@ -188,7 +204,16 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
         var resJson = new X2JS().xml_str2json(xhr.response)
         item.file.name = resJson.PostResponse.Key.slice(resJson.PostResponse.Key.lastIndexOf("/")+1)
         item.uri = resJson.PostResponse.Location
-
+        item.create = function(){
+            $http.post('/jphoto', {
+                path: item.uri,
+                desc: item.desc
+            }).then(function() {
+                item.remove()
+            },function(err) {
+                item.error = err.error
+            })
+        }
     });
 
     uploader.bind('error',function(event,xhr,item){

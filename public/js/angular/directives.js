@@ -73,15 +73,18 @@ angular.module('photowall.directives', [])
                 replace: true,
                 scope: {
                     items: '=',
-                    setCurrent: '&',
                     srcName: '@',
-                    modalTarget: '@'
+                    modalTarget: '@',
+                    currentPhotoIndex:'='
                 },
                 template: '<div class="row pin-wall">' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '<div class="col-md-3 pin-col"></div>' + '</div>',
                 link: function(scope, elm, attrs) {
                     var cols = $(elm).find('.pin-col')
                     var width = cols.width()
                     scope.pinNumber = 0
+                    scope.setCurrentPhoto = function(index){
+                        scope.currentPhotoIndex = index 
+                    }
                     var getMin = function(arr) {
                         var min = 0
                         for (var i = 0; i < arr.length; i++) {
@@ -104,12 +107,13 @@ angular.module('photowall.directives', [])
                                     scope.items[scope.pinNumber][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
                                 } else {
                                     var wrapper = $('<div class="pin"></div>')
-                                    var elm = $('<a ng-click="setCurrent({index:' + scope.pinNumber + '})" data-toggle="modal" data-target="' + scope.modalTarget + '"></>')
+                                    var elm = $('<a ng-click="setCurrentPhoto(' + scope.pinNumber + ')" data-toggle="modal" data-target="' + scope.modalTarget + '"></>')
                                     elm.append(img)
                                     wrapper.append(elm)
-                                    $compile(wrapper)(scope)
-                                    getMin(cols.toArray()).append(wrapper)
-                                    scope.pinNumber++
+                                    var wrapperObject = $compile(wrapper)(scope,function(wrapperObject){
+                                        getMin(cols.toArray()).append(wrapperObject)
+                                        scope.pinNumber++
+                                    })
                                 }
                                 load(loadImage)
                             }, {

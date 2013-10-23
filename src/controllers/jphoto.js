@@ -22,7 +22,8 @@ module.exports = function(tool, Photo) {
                     {key:key},
                     {acl:s3.acl},
                     ['starts-with','$Content-Type',s3.content_type],
-                    {success_action_status:s3.success_action_status}
+                    {success_action_status:s3.success_action_status},
+                    {filesize:req.param('filesize')}
                 ]
             }
             var signatureString = JSON.stringify(signatureObject)
@@ -40,38 +41,37 @@ module.exports = function(tool, Photo) {
                 {'Content-Type':s3.content_type}
             ])
         },
-        create: function(req, res) {
+        create : function(req,res){
             var p = new Photo(req.body)
             p.addedBy = req.user.id
-            var targetDir = path.join(tool.uploadDir, req.user.id)
-            var fm = tool.upload.fileManager({
-                targetDir: targetDir,
-                targetUrl: path.join(tool.uploadUri, req.user.id),
+            p.save(function(err,doc){
+                if(err)
+                    res.json(500,{error:err})
+                else
+                    res.json({success:'success'})
             })
-
-            fm.move(req.param('name'), '', function(err, result) {
-                if (err)
-                    res.json(500, {error: err})
-                p.path = path.join(targetDir, req.param('name'))
-                p.save(function(err, doc) {
-                    if (err)
-                        res.json(500, {error: err})
-                    else
-                        res.json({success: 'success'})
-                })
-            })
-
         },
         // create: function(req, res) {
         //     var p = new Photo(req.body)
         //     p.addedBy = req.user.id
-        //     p.uploadAndSave(req.files.image, function(err, doc) {
-        //         if (err) {
-        //             res.json('500',{error:err})
-        //         } else {
-        //             res.json({success:'success'})
-        //         }
+        //     var targetDir = path.join(tool.uploadDir, req.user.id)
+        //     var fm = tool.upload.fileManager({
+        //         targetDir: targetDir,
+        //         targetUrl: path.join(tool.uploadUri, req.user.id),
         //     })
+
+        //     fm.move(req.param('name'), '', function(err, result) {
+        //         if (err)
+        //             res.json(500, {error: err})
+        //         p.path = path.join(targetDir, req.param('name'))
+        //         p.save(function(err, doc) {
+        //             if (err)
+        //                 res.json(500, {error: err})
+        //             else
+        //                 res.json({success: 'success'})
+        //         })
+        //     })
+
         // },
         edit: function(req, res) {
             res.render('photo/edit', {
@@ -128,7 +128,7 @@ module.exports = function(tool, Photo) {
             })
         },
         show: function(req, res) {
-            setTimeout(function(){res.json(req.photo)},1000)
+            res.json(req.photo)
         },
         load: function(req, res, next, photoId) {
             Photo.load(photoId, function(err, doc) {

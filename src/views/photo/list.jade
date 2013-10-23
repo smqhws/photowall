@@ -9,8 +9,7 @@ block content
         div(infinite-scroll='photos.nextPage()' 
             ,infinite-scroll-disabled='photos.busy || photos.full' 
             ,infinite-scroll-distance='1')
-            pinerest(items='photos.items'
-                ,set-current='setCurrent(index)',src-name='uri',modal-target='#photo-modal')
+            pinerest(items='photos.items',src-name='uri',modal-target='#photo-modal',current-photo-index='currentPhotoIndex')
         div(ng-show='photos.full') 
             ul.pagination
                 li(ng-repeat='bigpage in photoPageArr')

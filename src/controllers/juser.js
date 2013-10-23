@@ -7,14 +7,14 @@ module.exports = function(tool, User) {
         login: function(req, res,next) {
             passport.authenticate('local', function(err, user, info) {
                 if (err) {
-                    return res.json(err)
+                    return res.json(500,{error:err})
                 }
                 if (!user) {
-                    return res.json({info:info})
+                    return res.json(500,{error:info})
                 }
                 req.logIn(user, function(err) {
                     if (err) {
-                        return res.json(err)
+                        return res.json(500,{error:err})
                     }
                     return res.json({user:req.user})
                 });

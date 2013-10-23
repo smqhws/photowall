@@ -99,8 +99,7 @@ var tool = module.exports = {
         if (req.isAuthenticated())
             next()
         else {
-            req.flash('error', 'Must log in')
-            res.redirect('/login')
+            res.json(403,{error:'must login in'})
         }
     },
     getErrMsg: function(err) {
@@ -162,6 +161,7 @@ var tool = module.exports = {
     getUri: function(self, key) {
         if (!self.get(key))
             return ''
+        if(self.get(key).indexOf('http')==0) return self.get(key)
         var startIndex = self.get(key).indexOf(tool.uploadUri)
         return self.get(key).slice(startIndex)
     },
