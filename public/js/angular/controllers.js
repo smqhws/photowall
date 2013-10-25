@@ -95,6 +95,9 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
         
     }
 ])
+.controller('RequireLoginCtrl',['$scope',function($scope){
+
+}])
 .controller('GlobalCtrl', ['$scope','$http','$location',
     function($scope,$http,$location) {
         $http.get('/juser/status').success(function (data) {

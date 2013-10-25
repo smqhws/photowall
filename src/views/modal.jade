@@ -56,7 +56,7 @@
                             span.glyphicon.glyphicon-upload &nbsp;Upload all
                         button.btn.btn-danger.btn-s(type="button",ng-click="uploader.clearQueue()",ng-disabled="!uploader.queue.length")
                             span.glyphicon.glyphicon-trash &nbsp;Remove all
-                        button.btn.btn-success.btn-xs(type="button",ng-click="uploader.createAll()",ng-disabled="item.error || item.isUploading || item.isLoading || !item.isUploaded")
+                        button.btn.btn-success.btn-xs(type="button",ng-click="uploader.createAll()")
                             span.glyphicon.glyphicon-ok &nbsp;Create all
                     .row
                         .col-md-3 Picture

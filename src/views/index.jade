@@ -1,0 +1,61 @@
+extends layout
+
+block content
+    div(ng-controller='PhotoListCtrl')
+        div(infinite-scroll='photos.nextPage()' 
+            ,infinite-scroll-disabled='photos.busy || photos.full' 
+            ,infinite-scroll-distance='1')
+            pinerest(items='photos.items',src-name='uri',modal-target='#photo-modal',current-photo-index='currentPhotoIndex')
+        div(ng-show='photos.full') 
+            ul.pagination
+                li(ng-repeat='bigpage in photoPageArr')
+                    a(ng-click='photos.selectBigPage(bigpage)'
+                        ,ng-show='bigpage - photos.bigPageIndex') {{bigpage}}
+                    span(ng-show='!(bigpage-photos.bigPageIndex)') {{bigpage}}
+        contentloaded(ng-show='photos.busy && !photos.full')
+
+        #photo-modal.modal.fade(tabindex='-1'
+            ,role='dialog',aria-labelledby='photo-modal-title',aria-hidden='true')
+                .modal-header(ng-show='loadingPhoto')
+                    contentloaded
+                .modal-header(ng-show='!loadingPhoto')
+                    button.close(type="button",data-dismiss='modal'
+                        ,aria-hidden='true' ) &times;
+                    h3#photo-modal-title {{currentPhoto.addedBy.profile.name || currentPhoto.addedBy.email}}
+                .modal-body(ng-show='loadingPhoto')
+                    contentloaded
+                .modal-body(ng-show='!loadingPhoto')
+                    .text-center.well
+                        a.pull-right(data-toggle='modal',data-target='#edit-photo-modal',href='{{"/jphoto/"+currentPhotoId+"/edit"}}')
+                            span.glyphicon.glyphicon-edit
+                        a(ng-click='nextPhoto()')
+                            imgloaded(img-src='{{currentPhoto.uri}}',img-class='img-responsive')                                
+                            p.text-left {{currentPhoto.desc}}
+                    .panel-group#comments-accordion
+                        .panel.panel-default
+                            .panel-heading
+                                h4.panel-title
+                                    a(data-toggle='collapse',data-parent='#comments-accordion',data-target='#comments-collapse',ng-click='toggleComment()')
+                                        span Comments
+                            #comments-collapse.panel-collapse.collapse
+                                .panel-body(ng-show='loadingComment')
+                                        contentloaded
+                                .panel-body(ng-show='!loadingComment')
+                                    .form-group
+                                        label.sr-only(for='comment') Add Comment
+                                        textarea.form-control.input-block-level(placeHolder = 'Comment',ng-model='newComment',id='comment')
+                                    button.btn.btn-default.btn-block(type='button',ng-click='addComment()') Submit
+
+                                    ul
+                                        li(ng-repeat='c in currentComments ') {{$index}}:{{c.content}}
+                                    ul.pagination
+                                        li(ng-repeat='bigpage in currentCommentPageArr')
+                                            a(ng-click='selectCommentPage(bigpage)'
+                                                ,ng-show='bigpage - currentCommentPageIndex') {{bigpage}}
+                                            span(ng-show='!(bigpage-currentCommentPageIndex)') {{bigpage}}
+    
+                                    
+                .modal-footer
+                    button.btn.btn-default(ng-click='nextPhoto()') Next
+                    button.btn.btn-default(ng-click='prePhoto()') Pre
+

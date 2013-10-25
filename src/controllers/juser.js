@@ -22,7 +22,7 @@ module.exports = function(tool, User) {
         },
         logout: function(req, res) {
             req.logout()
-            res.redirect('/login')
+            res.redirect('/')
         },
         status:function(req,res){
             res.json({user:req.user})

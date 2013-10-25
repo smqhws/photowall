@@ -98,7 +98,6 @@ module.exports = function(tool, Photo) {
         addComment: function(req, res) {
             req.photo.addComment(req.param('content'), req.user.id, function(err, doc) {
                 if (err) {
-                    console.log(err)
                     res.json(500, {
                         error: tool.getErrMsg(err)
                     })
@@ -123,7 +122,6 @@ module.exports = function(tool, Photo) {
                     res.json(500, {
                         error: err
                     })
-                console.log(objs)
                 res.json(objs)
             })
         },

@@ -2,15 +2,21 @@
 
 
 // Declare app level module which depends on filters, and services
-angular.module('photowall', ['photowall.filters', 'photowall.services', 'photowall.directives', 'photowall.controllers', 'ngResource', 'infinite-scroll',"angularFileUpload"])
-// .
-// config(
-//   ['$routeProvider', function($routeProvider) {
-//   $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1'})
-//   $routeProvider.when('/view2', {templateUrl: 'partials/partial2.html', controller: 'MyCtrl2'})
-//   $routeProvider.otherwise({redirectTo: '/view1'})
-// }]
-// )
+angular.module('photowall', ['photowall.filters', 'photowall.services', 'photowall.directives', 'photowall.controllers', 'ngResource', 'infinite-scroll', "angularFileUpload"])
+    .
+config(
+    ['$routeProvider',
+        function($routeProvider) {
+            $routeProvider.when('/requireLogin', {
+                templateUrl: 'requireLogin',
+                controller: 'RequireLoginCtrl'
+            })
+            $routeProvider.otherwise({
+                redirectTo: '404.html'
+            })
+        }
+    ]
+)
 // .constant('_START_REQUEST_', '_START_REQUEST_')
 //     .constant('_END_REQUEST_', '_END_REQUEST_')
 //     .config(['$httpProvider', '_START_REQUEST_', '_END_REQUEST_',
