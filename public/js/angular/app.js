@@ -2,13 +2,21 @@
 
 
 // Declare app level module which depends on filters, and services
-angular.module('photowall', ['photowall.filters', 'photowall.services', 'photowall.directives', 'photowall.controllers', 'ngResource', 'infinite-scroll', "angularFileUpload"])
+angular.module('photowall', ['ngRoute','photowall.filters', 'photowall.services', 'photowall.directives', 'photowall.controllers', 'ngResource', 'infinite-scroll', "angularFileUpload"])
     .
 config(
     ['$routeProvider',
         function($routeProvider) {
-            $routeProvider.when('/requireLogin', {
-                templateUrl: 'requireLogin',
+            $routeProvider
+            .when('/',{
+
+            })
+            .when('/',{
+                templateUrl:'/html/photo/list.html',
+                controller:'PhotoListCtrl'
+            })
+            .when('/requireLogin', {
+                templateUrl: 'requireLogin.html',
                 controller: 'RequireLoginCtrl'
             })
             $routeProvider.otherwise({

@@ -55,7 +55,9 @@ tool.upload.on('error', function(info) {
 
 // all environments
 app.set('port', process.env.PORT || 3000);
+
 app.set('views', __dirname + '/src/views');
+// app.engine('.html', require('jade').__express);
 app.set('view engine', 'jade');
 app.use(express.favicon());
 app.use(express.logger('dev'));

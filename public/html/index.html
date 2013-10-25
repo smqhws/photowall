@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html ng-app="photowall">
+  <head>
+    <title> Photo Wall </title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="desctription" content="content"/>
+    <meta name="author" content="content"/>
+    <meta name="keywords" content="content"/>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="/css/bootstrap-modal-bs3patch.css"/>
+    <!-- link(rel='stylesheet', href='/css/bootstrap-fileupload.min.css')-->
+    <link rel="stylesheet" href="/css/bootstrap-modal.css"/>
+    <!-- link(rel='stylesheet', href='/css/fileupload/jquery.fileupload-ui.css')-->
+    <!-- noscript-->
+    <!--     link(rel='stylesheet', href='/css/fileupload/jquery.fileupload-ui-noscript.css')-->
+    <link rel="stylesheet" href="/css/style.css"/>
+  </head>
+  <body>
+    <div ng-controller="GlobalCtrl" class="page-container">
+
+    <div role="navigation" class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-header">
+        <button type="button" data-toggle="collapse" data-target="#navbar-collapse" class="navbar-toggle"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a href="#" class="navbar-brand">Photo Wall       </a>
+      </div>
+      <div id="navbar-collapse" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="/">Home</a></li>
+          <li class="dropdown"><a id="photo-menu" role="button" data-target="#" data-toggle="dropdown" class="dropdown-toggle">Photo<span class="caret"></span></a>
+            <ul role="menu" aria-labelledby="photo-menu" class="dropdown-menu">
+              <li><a href="/photo">All</a></li>
+              <li><a data-toggle="modal" data-target="#upload-modal">New</a></li>
+            </ul>
+          </li>
+          <li><a href="/user">User</a></li>
+          <li><a href="#">About</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li ng-show="user.profile" class="dropdown"><a id="user-menu" role="button" data-target="#" data-toggle="dropdown" class="dropdown-toggle">{{user.name}}<span class="caret"></span></a>
+            <ul role="menu" aria-labelledby="user-menu" class="dropdown-menu">
+              <li><a href="/juser/logout">Logout</a></li>
+            </ul>
+          </li>
+          <li ng-show="!user.profile"><a data-toggle="modal" data-target="#user-modal">Login</a></li>
+        </ul>
+        <!--
+        <form role="search" class="navbar-form navbar-right">
+          <div class="input-group">
+            <input type="text" class="form-control"/><span class="input-group-btn">
+              <button type="button" class="btn btn-default"> <span class="glyphicon glyphicon-search"></span></button></span>
+          </div>
+        </form>
+        -->
+      </div>
+    </div>
+      <div class="container" ng-view></div>
+
+      <div class="container">
+        <div class="footer">
+          <hr style="margin: 30px 0 10px 0;"/>
+        </div>
+      </div>
+      <div id="user-modal" tabindex="-1" data-width="400" role="dialog" aria-labelledby="user-modal-title" aria-hidden="true" self-hide="self-hide" class="modal fade">
+        <div class="modal-header">
+          <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
+          <h3 id="user-modal">Log in</h3>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <form ng-submit="login()" method="POST" novalidate="novalidate" name="userForm">
+                <div ng-class="{'has-error':userForm.email.$invalid &amp;&amp; userForm.email.$dirty}" class="form-group">
+                  <label for="email" class="sr-only">Email</label>
+                  <input id="email" required="required" name="email" type="email" placeHolder="Email" data-ng-model="user.email" class="form-control"/><span data-ng-repeat="(key,value) in userForm.email.$error" data-ng-show="value &amp;&amp; userForm.email.$dirty" class="help-block">{{key+' error'}}</span>
+                </div>
+                <div ng-class="{'has-error':userForm.password.$invalid &amp;&amp; userForm.password.$dirty}" class="form-group">
+                  <label for="password" class="sr-only">Password</label>
+                  <input id="password" name="password" required="required" type="password" ng-minlength="6" ng-maxlength="12" placeHolder="password" data-ng-model="user.password" class="form-control"/><span data-ng-repeat="(key,value) in userForm.password.$error" data-ng-show="value &amp;&amp; userForm.password.$dirty" class="help-block">{{key+' error'}}</span>
+                </div>
+                <div data-ng-show="info" class="has-error"><span class="help-block">{{info.message}}</span></div>
+                <button type="submit" class="btn btn-default btn-block">Submit</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="upload-modal" tabindex="-1" data-width="760" role="dialog" aria-labelledby="upload-modal-title" aria-hidden="true" ng-file-drop="ng-file-drop" class="modal fade">
+        <div class="modal-header">
+          <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
+          <h3 id="upload-modal-title">Upload Photo</h3>
+        </div>
+        <div ng-controller="UploadController" class="modal-body">
+          <div class="row">
+            <div class="col-md-4">
+              <h3>Select files</h3>
+              <div ng-file-over="ng-file-over" class="well my-drop-zone">Base drop zone</div>
+              <div ng-file-drop="{url:'.foo'}" ng-file-over="another-file-over-class" class="well my-drop-zone">Another drop zone with its own settings</div>
+              <button class="btn btn-success btn-upload"><i class="glyphicon glyphicon-plus"></i>&nbsp;<span>Add </span>
+                <input ng-file-select="ng-file-select" type="file" multiple="multiple"/>
+              </button>
+            </div>
+            <div style="margin-bottom: 40px;" class="col-md-8">
+              <div class="row">
+                <h3>Upload queue</h3>
+                <p>Queue length:{{uploader.queue.length}}</p>
+                <button type="button" ng-click="uploader.uploadAll()" ng-disabled="!uploader.getNotUploadedItems().length" class="btn btn-success btn-s"><span class="glyphicon glyphicon-upload">&nbsp;Upload all</span></button>
+                <button type="button" ng-click="uploader.clearQueue()" ng-disabled="!uploader.queue.length" class="btn btn-danger btn-s"><span class="glyphicon glyphicon-trash">&nbsp;Remove all</span></button>
+                <button type="button" ng-click="uploader.createAll()" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok">&nbsp;Create all</span></button>
+              </div>
+              <div class="row">
+                <div class="col-md-3">Picture</div>
+                <div class="col-md-2">Size</div>
+                <div class="col-md-4">Status</div>
+                <div class="col-md-3">Actions</div>
+              </div>
+              <div ng-repeat="item in uploader.queue" ng-class="{'text-danger':item.error}" class="row">
+                <div class="col-md-3"><abbr ng-show="!item.uri" title="{{item.file.name}}">{{item.file.name | limitTo:10}}</abbr><a ng-show="item.uri" ng-href="{{item.uri}}">
+                    <imgloaded img-src="{{item.uri}}" img-class="img-responsive" img-width="80px"></imgloaded></a></div>
+                <div class="col-md-2">{{item.file.size/1024|number:2}}KB</div>
+                <div class="col-md-4">
+                  <div style="margin-bottom:0;" ng-show="item.isUploading" class="progress progress-striped">
+                    <div role="progressbar" ng-style="{'width':item.progress+'%'}" class="progress-bar progress-bar-success"></div>
+                  </div>
+                  <div ng-show="item.error"><abbr title="{{item.error}}"> <i class="glyphicon glyphicon-remove"> </i></abbr></div>
+                  <div ng-show="!item.isUploading &amp;&amp; !item.isUploaded &amp;&amp; !item.error">
+                    <imgloaded ng-show="isLoading" img-src="/img/ajax-loader.gif"></imgloaded>
+                    <div ng-show="!isLoading">Ready</div>
+                  </div>
+                  <div ng-show="item.isUploaded &amp;&amp; !item.error">
+                    <div class="form-group">
+                      <label for="{{&quot;desc&quot;+$index}}" class="sr-only"></label>
+                      <textarea type="text" data-ng-model="item.desc" id="{{&quot;desc&quot;+$index}}" rows="2" class="form-control"></textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <button type="button" ng-click="item.upload()" ng-disabled="item.isUploaded" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-upload">&nbsp;Upload</span></button>
+                  <button type="button" ng-click="item.remove()" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash">&nbsp;Remove</span></button>
+                  <button type="button" ng-click="item.create()" ng-disabled="item.error || item.isUploading || item.isLoading || !item.isUploaded" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok">&nbsp;Create</span></button>
+                </div>
+              </div>
+              <div>
+                <div ng-show="uploader.isUploading">
+                  <p>Queue progress:
+                    <div style="" class="progress progress-striped">
+                      <div role="progressbar" ng-style="{'width':uploader.progress+'%'}" class="progress-bar progress-bar-success"></div>
+                    </div>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script src="/js/jquery.min.js"></script>
+      <script src="/js/underscore-min.js"></script>
+      <script src="/js/xml2json.min.js"></script>
+      <script src="/js/angular/angular.min.js"></script>
+      <script src="/js/bootstrap/bootstrap.min.js"></script>
+      <script src="/js/es5-shim.min.js"></script>
+      <!-- script(src='/js/bootstrap-fileupload.min.js')-->
+      <script src="/js/bootstrap-modal.js"></script>
+      <script src="/js/bootstrap-modalmanager.js"></script>
+      <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included-->
+      <!-- script(src="/js/jquery.ui.widget.js")-->
+      <!-- The Load Image plugin is included for the preview images and image resizing functionality-->
+      <script src="/js/load-image.min.js"></script>
+      <!-- The Canvas to Blob plugin is included for image resizing functionality-->
+      <!-- script(src='/js/canvas-to-blob.min.js')-->
+      <!-- The Iframe Transport is required for browsers without support for XHR file uploads-->
+      <!-- script(src='/js/fileupload/jquery.iframe-transport.js')-->
+      <!-- The basic File Upload plugin-->
+      <!-- script(src='/js/fileupload/jquery.fileupload.js')-->
+      <!-- The File Upload processing plugin-->
+      <!-- script(src='/js/fileupload/jquery.fileupload-process.js')-->
+      <!-- The File Upload image preview & resize plugin-->
+      <!-- script(src='/js/fileupload/jquery.fileupload-image.js')-->
+      <!-- The File Upload audio preview plugin-->
+      <!-- script(src='/js/fileupload/jquery.fileupload-audio.js')-->
+      <!-- The File Upload video preview plugin-->
+      <!-- script(src='/js/fileupload/jquery.fileupload-video.js')-->
+      <!-- The File Upload validation plugin-->
+      <!-- script(src='/js/fileupload/jquery.fileupload-validate.js')-->
+      <!-- The File Upload Angular JS module-->
+      <!-- script(src='/js/fileupload/jquery.fileupload-angular.js')-->
+      <!-- The main application script-->
+      <script src="/js/eventie.js"></script>
+      <script src="/js/eventEmitter.js"></script>
+      <script src="/js/imagesloaded.pkgd.min.js"></script>
+      <script src="/js/global.js"></script>
+      <script src="/js/angular/angular-resource.min.js"></script>
+      <script src="/js/angular/angular-route.min.js"></script>
+      <script src="/js/angular/app.js"></script>
+      <script src="/js/angular/controllers.js"></script>
+      <script src="/js/angular/directives.js"></script>
+      <script src="/js/angular/filters.js"></script>
+      <script src="/js/angular/services.js"></script>
+      <script src="/js/angular/third/ng-infinite-scroll.min.js"></script>
+      <script src="/js/angular-file-upload.min.js"></script>
+    </div>
+  </body>
+</html>
+
+
+
+
+

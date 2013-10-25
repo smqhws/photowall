@@ -40,7 +40,7 @@ module.exports = function(app, tool, user, photo, jphoto,jcomment,jtag,juser) {
 
     // app.get('/',tool.isAuthenticated,jphoto.home)
     app.get('/',function(req,res){
-        res.render('index')
+        res.sendfile('/html/index.html')
     })
     app.get('/jphoto', tool.isAuthenticated, jphoto.list)
     app.get('/jphoto/count', tool.isAuthenticated, jphoto.count)
