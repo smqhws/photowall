@@ -40,25 +40,29 @@ module.exports = function(app, tool, user, photo, jphoto,jcomment,jtag,juser) {
 
     // app.get('/',tool.isAuthenticated,jphoto.home)
     app.get('/',function(req,res){
-        res.sendfile('/html/index.html')
+        res.sendfile('public/html/index.html')
     })
     app.get('/jphoto', tool.isAuthenticated, jphoto.list)
     app.get('/jphoto/count', tool.isAuthenticated, jphoto.count)
     app.get('/jphoto/:photoId', tool.isAuthenticated, jphoto.show)
-    app.get('/jphoto/:photoId/edit', tool.isAuthenticated, jphoto.edit)
-    app.post('/jphoto', tool.isAuthenticated, jphoto.create)
-    app.put('/jphoto/:photoId', tool.isAuthenticated, jphoto.update)
+    // app.get('/jphoto/:photoId/edit', tool.isAuthenticated, jphoto.edit)
+     app.post('/jphoto', tool.isAuthenticated, jphoto.create)
+    // app.put('/jphoto/:photoId', tool.isAuthenticated, jphoto.update)
 
     app.get('/jphoto/:photoId/comment',tool.isAuthenticated,jcomment.list)
     app.get('/jphoto/:photoId/comment/count',tool.isAuthenticated,jcomment.count)
     app.post('/jphoto/:photoId/comment',tool.isAuthenticated,jcomment.create)
 
+    app.put('/jcomment/:commentId/:op',tool.isAuthenticated,jcomment.op)
+
+    app.put('/jphoto/:photoId/:op',tool.isAuthenticated,jphoto.op)
+    
     app.get('/juser/status',juser.status)
     app.post('/juser/login',juser.login)
     app.get('/juser/logout',juser.logout)
 
     app.get('/jphoto/s3',tool.isAuthenticated,jphoto.s3Field)
 
-    app.param('userId', /^[a-z0-9]{24}$/, user.load)
+    app.param('userId', /^[a-z0-9]{24}$/, juser.load)
     app.param('photoId', /^[a-z0-9]{24}$/, jphoto.load)
 }

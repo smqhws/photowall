@@ -29,11 +29,11 @@
           <li class="active"><a href="/">Home</a></li>
           <li class="dropdown"><a id="photo-menu" role="button" data-target="#" data-toggle="dropdown" class="dropdown-toggle">Photo<span class="caret"></span></a>
             <ul role="menu" aria-labelledby="photo-menu" class="dropdown-menu">
-              <li><a href="/photo">All</a></li>
+              <li><a href="#">All</a></li>
               <li><a data-toggle="modal" data-target="#upload-modal">New</a></li>
             </ul>
           </li>
-          <li><a href="/user">User</a></li>
+          <li><a href="#">User</a></li>
           <li><a href="#">About</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
@@ -54,7 +54,10 @@
         -->
       </div>
     </div>
-      <div class="container" ng-view></div>
+      <div class="container">
+        <div http-error-messages class='row'></div>
+        <div ng-view></div>
+      </div>
 
       <div class="container">
         <div class="footer">
@@ -67,16 +70,17 @@
           <h3 id="user-modal">Log in</h3>
         </div>
         <div class="modal-body">
+          <div http-error-messages class='row'></div>
           <div class="row">
             <div class="col-md-12">
               <form ng-submit="login()" method="POST" novalidate="novalidate" name="userForm">
-                <div ng-class="{'has-error':userForm.email.$invalid &amp;&amp; userForm.email.$dirty}" class="form-group">
+                <div ng-class="{'has-error':userForm.email.$invalid && userForm.email.$dirty}" class="form-group">
                   <label for="email" class="sr-only">Email</label>
-                  <input id="email" required="required" name="email" type="email" placeHolder="Email" data-ng-model="user.email" class="form-control"/><span data-ng-repeat="(key,value) in userForm.email.$error" data-ng-show="value &amp;&amp; userForm.email.$dirty" class="help-block">{{key+' error'}}</span>
+                  <input id="email" required="required" name="email" type="email" placeHolder="Email" data-ng-model="user.email" class="form-control"/><span data-ng-repeat="(key,value) in userForm.email.$error" data-ng-show="value && userForm.email.$dirty" class="help-block">{{key+' error'}}</span>
                 </div>
-                <div ng-class="{'has-error':userForm.password.$invalid &amp;&amp; userForm.password.$dirty}" class="form-group">
+                <div ng-class="{'has-error':userForm.password.$invalid && userForm.password.$dirty}" class="form-group">
                   <label for="password" class="sr-only">Password</label>
-                  <input id="password" name="password" required="required" type="password" ng-minlength="6" ng-maxlength="12" placeHolder="password" data-ng-model="user.password" class="form-control"/><span data-ng-repeat="(key,value) in userForm.password.$error" data-ng-show="value &amp;&amp; userForm.password.$dirty" class="help-block">{{key+' error'}}</span>
+                  <input id="password" name="password" required="required" type="password" ng-minlength="6" ng-maxlength="12" placeHolder="password" data-ng-model="user.password" class="form-control"/><span data-ng-repeat="(key,value) in userForm.password.$error" data-ng-show="value && userForm.password.$dirty" class="help-block">{{key+' error'}}</span>
                 </div>
                 <div data-ng-show="info" class="has-error"><span class="help-block">{{info.message}}</span></div>
                 <button type="submit" class="btn btn-default btn-block">Submit</button>
@@ -91,6 +95,7 @@
           <h3 id="upload-modal-title">Upload Photo</h3>
         </div>
         <div ng-controller="UploadController" class="modal-body">
+          <div http-error-messages class='row'></div>
           <div class="row">
             <div class="col-md-4">
               <h3>Select files</h3>
@@ -123,14 +128,14 @@
                     <div role="progressbar" ng-style="{'width':item.progress+'%'}" class="progress-bar progress-bar-success"></div>
                   </div>
                   <div ng-show="item.error"><abbr title="{{item.error}}"> <i class="glyphicon glyphicon-remove"> </i></abbr></div>
-                  <div ng-show="!item.isUploading &amp;&amp; !item.isUploaded &amp;&amp; !item.error">
+                  <div ng-show="!item.isUploading && !item.isUploaded && !item.error">
                     <imgloaded ng-show="isLoading" img-src="/img/ajax-loader.gif"></imgloaded>
                     <div ng-show="!isLoading">Ready</div>
                   </div>
-                  <div ng-show="item.isUploaded &amp;&amp; !item.error">
+                  <div ng-show="item.isUploaded && !item.error">
                     <div class="form-group">
-                      <label for="{{&quot;desc&quot;+$index}}" class="sr-only"></label>
-                      <textarea type="text" data-ng-model="item.desc" id="{{&quot;desc&quot;+$index}}" rows="2" class="form-control"></textarea>
+                      <label for="{{'desc'+$index}}" class="sr-only"></label>
+                      <textarea type="text" data-ng-model="item.desc" id="{{'desc'+$index}}" rows="2" class="form-control"></textarea>
                     </div>
                   </div>
                 </div>
@@ -155,6 +160,7 @@
       </div>
       <script src="/js/jquery.min.js"></script>
       <script src="/js/underscore-min.js"></script>
+      <script src="/js/imgReady.js"></script>
       <script src="/js/xml2json.min.js"></script>
       <script src="/js/angular/angular.min.js"></script>
       <script src="/js/bootstrap/bootstrap.min.js"></script>

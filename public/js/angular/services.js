@@ -37,9 +37,10 @@ angular.module('photowall.services', []).value('version', '0.1')
                 this.bigPageCount = -1
                 this.bigPageIndex = 1 //first is 1 ,not 0
                 this.full = false
+                this.status={globalLoading:false}
             }
             PhotoScroll.prototype.selectBigPage = function(index) {
-                if (this.busy) return
+                if (this.status.globalLoading||this.busy) return
                 this.busy = true
 
                 this.bigPageIndex = index
@@ -57,7 +58,7 @@ angular.module('photowall.services', []).value('version', '0.1')
                 this.busy = false
             }
             PhotoScroll.prototype.nextPage = function() {
-                if (this.busy || this.full) return
+                if (this.status.globalLoading||this.busy || this.full) return
                 this.busy = true
 
                 this.pageIndex++
@@ -76,7 +77,11 @@ angular.module('photowall.services', []).value('version', '0.1')
                             this.old[this.bigPageIndex] = this.items
                         }
                         this.busy = false
+                    }.bind(this)).error(function(data){
+                        this.busy = false
                     }.bind(this))
+                }.bind(this)).error(function(err){
+                    this.busy = false
                 }.bind(this))
             }
 

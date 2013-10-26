@@ -1,46 +1,82 @@
 
 <div infinite-scroll="photos.nextPage()" infinite-scroll-disabled="photos.busy || photos.full" infinite-scroll-distance="1">
-  <pinerest items="photos.items" src-name="uri" modal-target="#photo-modal" current-photo-index="currentPhotoIndex"></pinerest>
+  <pinerest items="photos.items" status="photos.status" src-name="uri" modal-target="#photo-modal" current-photo-index="currentPhotoIndex"></pinerest>
 </div>
 <div ng-show="photos.full"> 
   <ul class="pagination">
     <li ng-repeat="bigpage in photoPageArr"><a ng-click="photos.selectBigPage(bigpage)" ng-show="bigpage - photos.bigPageIndex">{{bigpage}}</a><span ng-show="!(bigpage-photos.bigPageIndex)">{{bigpage}}</span></li>
   </ul>
 </div>
-<contentloaded ng-show="photos.busy &amp;&amp; !photos.full"></contentloaded>
+<contentloaded ng-show="photos.status.globalLoading || (photos.busy && !photos.full)"></contentloaded>
+
+
 <div id="photo-modal" tabindex="-1" role="dialog" aria-labelledby="photo-modal-title" aria-hidden="true" class="modal fade">
-  <div ng-show="loadingPhoto" class="modal-header">
+  <div ng-show="loadingPhoto[currentPhotoId]" class="modal-header">
     <contentloaded></contentloaded>
   </div>
-  <div ng-show="!loadingPhoto" class="modal-header">
+  <div ng-show="!loadingPhoto[currentPhotoId]" class="modal-header">
     <button type="button" data-dismiss="modal" aria-hidden="true" class="close">&times;</button>
     <h3 id="photo-modal-title">{{currentPhoto.addedBy.profile.name || currentPhoto.addedBy.email}}</h3>
   </div>
-  <div ng-show="loadingPhoto" class="modal-body">
+  <div ng-show="loadingPhoto[currentPhotoId]" class="modal-body">
     <contentloaded></contentloaded>
   </div>
-  <div ng-show="!loadingPhoto" class="modal-body">
-    <div class="text-center well"><a data-toggle="modal" data-target="#edit-photo-modal" href="{{&quot;/jphoto/&quot;+currentPhotoId+&quot;/edit&quot;}}" class="pull-right"><span class="glyphicon glyphicon-edit"></span></a><a ng-click="nextPhoto()">
-        <imgloaded img-src="{{currentPhoto.uri}}" img-class="img-responsive">                               </imgloaded>
-        <p class="text-left">{{currentPhoto.desc}}</p></a></div>
+  <div ng-show="!loadingPhoto[currentPhotoId]" class="modal-body">
+    <div class="text-center well">
+      <a ng-click="nextPhoto()">
+        <imgloaded img-src="{{currentPhoto.uri}}" img-class="img-responsive"></imgloaded>
+      </a>
+      <p class="text-left">{{currentPhoto.desc}}</p>
+      <div class="row text-right">
+        <small class="col-md-12">
+          <a ng-show="!plused && !loadingPhoto[currentPhotoId]" ng-click="photoPlus1()"><span class="glyphicon glyphicon-thumbs-up"/></a>
+          <span ng-show="currentPhoto.plus1 && plused"><span class="glyphicon glyphicon-thumbs-up"/>&nbsp;{{currentPhoto.plus1}}&nbsp;&nbsp;</span>
+          <a ng-show="!minused && !loadingPhoto[currentPhotoId]" ng-click="photoMinus1()"><span class="glyphicon glyphicon-thumbs-down"/></a>
+          <span ng-show="currentPhoto.minus1 && minused"><span class="glyphicon glyphicon-thumbs-down"/>&nbsp;{{currentPhoto.minus1}}&nbsp;&nbsp;</span>
+          <imgloaded ng-show="loadingPhoto[currentPhotoId]" img-src="/img/ajax-loader.gif" img-class="img-responsive"></imgloaded>
+        </small>
+      </div>
+    </div>
     <div id="comments-accordion" class="panel-group">
       <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title"><a data-toggle="collapse" data-parent="#comments-accordion" data-target="#comments-collapse" ng-click="toggleComment()"><span>Comments</span></a></h4>
+        <div class="panel-heading text-center" >
+          <h4 class="panel-title" ><a data-toggle="collapse" data-parent="#comments-accordion" data-target="#comments-collapse" ng-click="toggleComment()"><span >Comments</span></a></h4>
         </div>
         <div id="comments-collapse" class="panel-collapse collapse">
-          <div ng-show="loadingComment" class="panel-body">
+          <div ng-show="loadingComment[currentPhotoId]" class="panel-body">
             <contentloaded></contentloaded>
           </div>
-          <div ng-show="!loadingComment" class="panel-body">
+          <div ng-show="!loadingComment[currentPhotoId]" class="panel-body">
+            
             <div class="form-group">
               <label for="comment" class="sr-only">Add Comment</label>
               <textarea placeHolder="Comment" ng-model="newComment" id="comment" class="form-control input-block-level"></textarea>
             </div>
             <button type="button" ng-click="addComment()" class="btn btn-default btn-block">Submit</button>
-            <ul>
-              <li ng-repeat="c in currentComments ">{{$index}}:{{c.content}}</li>
-            </ul>
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <tr><td></td></tr>
+                <tr ng-repeat="c in currentComments" >
+                  <td>
+                    <div class="row">
+                      <small class="col-md-6"> {{c.addedBy.name+" : "}} </small>
+                      <small class="col-md-6 text-right"> {{c.addedDate| date:'yyyy-MM-dd HH:mm:ss'}} </small>
+                    </div>
+                    <div class="row"><h4 class="col-md-12"> {{c.content}} </h4></div>
+                    <div class="row text-right">
+                      <small class="col-md-12">
+                        <a ng-show="!c.plus1 && !loadingCommentOp[c.id]" ng-click="commentPlus1(c.id)"><span class="glyphicon glyphicon-thumbs-up"/></a>
+                        <span ng-show="c.plus1"><span class="glyphicon glyphicon-thumbs-up"/>&nbsp;{{c.plus1}}&nbsp;&nbsp;</span>
+                        <a ng-show="!c.minus1 && !loadingCommentOp[c.id]" ng-click="commentMinus1(c.id)"><span class="glyphicon glyphicon-thumbs-down"/></a>
+                        <span ng-show="c.minus1"><span class="glyphicon glyphicon-thumbs-down"/>&nbsp;{{c.minus1}}&nbsp;&nbsp;</span>
+                        <imgloaded ng-show="loadingCommentOp[c.id]" img-src="/img/ajax-loader.gif" img-class="img-responsive"></imgloaded>
+                      </small>
+                    </div>
+                  <td>
+                </tr>
+              </table>
+            </div>
+
             <ul class="pagination">
               <li ng-repeat="bigpage in currentCommentPageArr"><a ng-click="selectCommentPage(bigpage)" ng-show="bigpage - currentCommentPageIndex">{{bigpage}}</a><span ng-show="!(bigpage-currentCommentPageIndex)">{{bigpage}}</span></li>
             </ul>

@@ -53,7 +53,7 @@ module.exports = function(mongoose, tool) {
                 'createdDate': -1
             }
 
-            this.find(where)
+            this.find(where,'-plus1 -minus1')
                 .populate('addedBy', 'email profile')
                 .sort(sort)
                 .limit(obj.pageSize)

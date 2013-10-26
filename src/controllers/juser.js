@@ -10,7 +10,7 @@ module.exports = function(tool, User) {
                     return res.json(500,{error:err})
                 }
                 if (!user) {
-                    return res.json(500,{error:info})
+                    return res.json(400,{error:info})
                 }
                 req.logIn(user, function(err) {
                     if (err) {
@@ -26,6 +26,18 @@ module.exports = function(tool, User) {
         },
         status:function(req,res){
             res.json({user:req.user})
+        },
+        load: function(req, res, next, userId) {
+            User.findById(userId, function(err, doc) {
+                if (err) {
+                    console.log(err)
+                    req.flash('error', tool.getErrMsg(err))
+                    res.redirect(redirect)
+                } else {
+                    req.otheruser = doc
+                    next()
+                }
+            })
         }
     }
     return result

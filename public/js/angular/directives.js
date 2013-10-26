@@ -34,7 +34,7 @@ angular.module('photowall.directives', [])
                     imgClass: '@',
                     imgWidth:"@"
                 },
-                template: '<div><img class="img-center" alt="load error" src="http://www.placehold.it/240x320/EFEFEF/AAAAAA&text=no+image" ng-show="broken"/><img class="img-center" alt="loading now" src="/img/ajax-loader.gif" ng-show="loading"><div ng-class="{loading:loading,broken:broken}"><img class="{{imgClass}} img-center" src="{{imgSrc}}" width="{{imgWidth}}" /></div></div>',
+                template: '<div><img class="img-center" alt="load error" src="http://www.placehold.it/240x320/EFEFEF/AAAAAA&text=no+image" ng-show="broken"/><img class="img-center" alt="loading now" src="/img/ajax-loader.gif" ng-show="loading"><div ng-class="{loading:loading,broken:broken}"><img class="{{imgClass}} img-center" ng-src="{{imgSrc}}" width="{{imgWidth}}" /></div></div>',
                 link: function(scope, elm, attrs) {
                     scope.loading = true
                     scope.broken = false
@@ -73,6 +73,7 @@ angular.module('photowall.directives', [])
                 replace: true,
                 scope: {
                     items: '=',
+                    status:'=',
                     srcName: '@',
                     modalTarget: '@',
                     currentPhotoIndex:'='
@@ -98,28 +99,36 @@ angular.module('photowall.directives', [])
                         return $(arr[min])
                     }
                     var load = function(fn) {
-                        if (!scope.items || scope.pinNumber >= scope.items.length)
+                        if (!scope.items )
                             return
+                        if(scope.pinNumber >= scope.items.length){
+                            scope.status.globalLoading = false
+                            return
+                        }
                         fn(scope.items[scope.pinNumber][scope.srcName],
                             function(img) {
-
-                                if (img.type === "error") {
+                                scope.$apply(function(){
+                                    if (img.type === "error") {
                                     scope.items[scope.pinNumber][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
-                                } else {
-                                    var wrapper = $('<div class="pin"></div>')
-                                    var elm = $('<a ng-click="setCurrentPhoto(' + scope.pinNumber + ')" data-toggle="modal" data-target="' + scope.modalTarget + '"></>')
-                                    elm.append(img)
-                                    wrapper.append(elm)
-                                    var wrapperObject = $compile(wrapper)(scope,function(wrapperObject){
-                                        getMin(cols.toArray()).append(wrapperObject)
-                                        scope.pinNumber++
-                                    })
-                                }
-                                load(loadImage)
+                                    load(loadImage)
+                                    } else {
+                                        var wrapper = $('<div class="pin"></div>')
+                                        var elm = $('<a ng-click="setCurrentPhoto(' + scope.pinNumber + ')" data-toggle="modal" data-target="' + scope.modalTarget + '"></>')
+                                        elm.append(img)
+                                        wrapper.append(elm)
+                                        var wrapperObject = $compile(wrapper)(scope,function(wrapperObject){
+                                            getMin(cols.toArray()).append(wrapperObject)
+                                            scope.pinNumber++
+                                            load(loadImage)
+                                        })
+                                    }
+                                })
                             }, {
                                 maxWidth: width
                             })
                     }
+
+                    
 
                     var contains = function(now, old) {
                         var i = 0
@@ -141,7 +150,7 @@ angular.module('photowall.directives', [])
                             cols.empty()
                             scope.pinNumber = 0
                         }
-
+                        scope.status.globalLoading = true
                         load(loadImage)
                     }, true)
 
@@ -158,3 +167,36 @@ angular.module('photowall.directives', [])
 
 
 // one by one append img
+
+// var load = function() {
+                    //     if(scope.busy){
+                    //         return $timeout(load,100)
+                    //     }
+                    //     scope.busy = true  
+                    //     if (!scope.items ){
+                    //         scope.busy=false
+                    //         return
+                    //     }
+                            
+                    //     if(scope.pinNumber >= scope.items.length){
+                    //         scope.busy = false
+                    //         scope.status.globalLoading = false
+                    //         return
+                    //     }
+                    //     var wrapper = $('<div class="pin"></div>')
+                    //     var elm = $('<a ng-click="setCurrentPhoto(' + scope.pinNumber + ')" data-toggle="modal" data-target="' + scope.modalTarget + '"></>')
+                    //     elm.append('<img src="'+scope.items[scope.pinNumber][scope.srcName]+'" width="'+width+'" />')
+                    //     wrapper.append(elm)
+                    //     var wrapperObject = $compile(wrapper)(scope,function(wrapperObject){
+                    //         var imgLoad = imagesLoaded(wrapperObject, function() {
+                    //             scope.$apply(function() {
+                    //                 getMin(cols.toArray()).append(wrapperObject)
+                    //                 scope.pinNumber++
+                    //                 scope.busy = false
+                    //                 load()
+                    //             })
+                    //         })
+                            
+                    //     })
+                        
+                    // }

@@ -108,7 +108,7 @@ module.exports = function(mongoose, tool) {
                 .exec(cb)
         },
         load: function(id, cb) {
-            this.findById(id,'-comment')
+            this.findById(id)
                 .populate('addedBy', 'email profile')
                 .exec(cb)
         }

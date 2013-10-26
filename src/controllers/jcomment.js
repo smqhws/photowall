@@ -32,11 +32,21 @@ module.exports = function(tool, Comment) {
             c.about = req.photo.id
             c.save(function(err,doc){
                 if(err){
-                    console.log(err)
-                    res.json(500,{error:tool.getErrMsg(err)})
-                }
-                    
+                    return res.json(500,{error:err})
+                } 
                 res.json(doc)
+            })
+        },
+        op:function(req,res){
+            Comment.findById(req.params.commentId,function(err,doc){
+                if(err)
+                    return res.json(500,{error:err})
+                doc[req.params.op]+=1
+                doc.save(function(err,doc){
+                    if(err)
+                        return res.json(500,{error:err})
+                    res.json({op:doc[req.params.op]})
+                })
             })
         }
     }

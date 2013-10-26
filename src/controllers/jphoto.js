@@ -7,13 +7,8 @@ module.exports = function(tool, Photo) {
     var s3 = tool.s3
     var crypto = tool.crypto
     result = {
-        add: function(req, res) {
-            res.render('photo/edit', {
-                action: '/jphoto',
-                photo: new Photo()
-            })
-        },
         s3Field:function(req,res){
+
             var key = tool.project_name+"/upload/"+tool.guid()
             var signatureObject = {
                 expiration:s3.expiration_date(),
@@ -73,12 +68,6 @@ module.exports = function(tool, Photo) {
         //     })
 
         // },
-        edit: function(req, res) {
-            res.render('photo/edit', {
-                action: '/jphoto/' + req.photo.id,
-                photo: req.photo
-            })
-        },
         update: function(req, res) {
             var p = req.photo
             _.extend(p, req.body)
@@ -93,16 +82,6 @@ module.exports = function(tool, Photo) {
                         success: 'success'
                     })
                 }
-            })
-        },
-        addComment: function(req, res) {
-            req.photo.addComment(req.param('content'), req.user.id, function(err, doc) {
-                if (err) {
-                    res.json(500, {
-                        error: tool.getErrMsg(err)
-                    })
-                } else
-                    res.json(doc.comment[doc.comment.length - 1])
             })
         },
         count: function(req, res) {
@@ -136,6 +115,16 @@ module.exports = function(tool, Photo) {
                     })
                 req.photo = doc
                 next()
+            })
+        },
+        op:function(req,res){
+            var photo = req.photo
+            console.log(typeof(photo[req.params.op]))
+            photo[req.params.op]+=1;
+            photo.save(function(err,doc){
+                if(err)
+                    return res.json(500,{error:err})
+                res.json({op:doc[req.params.op]})
             })
         }
     }
