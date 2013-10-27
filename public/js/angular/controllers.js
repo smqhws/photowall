@@ -16,8 +16,8 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
         $scope.loadingPhotoOp = {}
         $scope.loadingComment = {}
         $scope.loadingCommentOp = {}
-        $scope.plused={}
-        $scope.minused={}
+        $scope.plused = {}
+        $scope.minused = {}
         $scope.$watch('currentPhotoIndex', function(index) {
             if (index >= 0 && index < $scope.photos.items.length) {
                 $scope.currentCommentPageIndex = 0
