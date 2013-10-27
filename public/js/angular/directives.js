@@ -105,15 +105,16 @@ angular.module('photowall.directives', [])
                             scope.status.globalLoading = false
                             return
                         }
-                        fn(scope.items[scope.pinNumber][scope.srcName],
+                        var index = scope.pinNumber
+                        fn(scope.items[index][scope.srcName],
                             function(img) {
                                 scope.$apply(function(){
                                     if (img.type === "error") {
-                                    scope.items[scope.pinNumber][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
+                                    scope.items[index][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
                                     load(loadImage)
                                     } else {
                                         var wrapper = $('<div class="pin"></div>')
-                                        var elm = $('<a ng-click="setCurrentPhoto(' + scope.pinNumber + ')" data-toggle="modal" data-target="' + scope.modalTarget + '"></>')
+                                        var elm = $('<a ng-click="setCurrentPhoto(' + index + ')" data-toggle="modal" data-target="' + scope.modalTarget + '"></>')
                                         elm.append(img)
                                         wrapper.append(elm)
                                         var wrapperObject = $compile(wrapper)(scope,function(wrapperObject){

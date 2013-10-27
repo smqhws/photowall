@@ -37,31 +37,29 @@ module.exports = function(passport, User) {
         })
     }))
 
-    passport.use(new BaiduStrategy({
-            clientID: "Zkx4uvmUS5idbwMGVdcnB2zW",
-            clientSecret: "5W7CdS8bdGrgbmKx6dxIdQXG5aWsVhcC",
-            callbackURL: "http://127.0.0.1:3000/user/baidu/callback"
-        },
-        function(accessToken, refreshToken, profile, done) {
-            User.findOne({
-                'baidu.id': profile.id
-            }, function(err, user) {
-                if (err) {
-                    return done(err)
-                }
-                if (!user) {
-                    user = new User({
-                        provider: 'baidu',
-                        baidu: profile._json
-                    })
-                    user.save(function(err) {
-                        if (err) console.log(err)
-                        return done(err, user)
-                    })
-                } else {
-                    return done(err, user)
-                }
-            })
-        }
-    ))
+    // passport.use(new BaiduStrategy({
+
+    //     },
+    //     function(accessToken, refreshToken, profile, done) {
+    //         User.findOne({
+    //             'baidu.id': profile.id
+    //         }, function(err, user) {
+    //             if (err) {
+    //                 return done(err)
+    //             }
+    //             if (!user) {
+    //                 user = new User({
+    //                     provider: 'baidu',
+    //                     baidu: profile._json
+    //                 })
+    //                 user.save(function(err) {
+    //                     if (err) console.log(err)
+    //                     return done(err, user)
+    //                 })
+    //             } else {
+    //                 return done(err, user)
+    //             }
+    //         })
+    //     }
+    // ))
 }

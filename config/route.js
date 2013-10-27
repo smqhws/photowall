@@ -1,8 +1,8 @@
 module.exports = function(app, tool, user, photo, jphoto,jcomment,jtag,juser) {
     var passport = tool.passport
 
-    // app.get('/signup', user.signup)
-    // app.post('/user', user.validCreate, user.create)
+     app.get('/signup', user.signup)
+     app.post('/user', user.validCreate, user.create)
     // app.get('/login', user.login)
     // app.post('/login', user.validLogin,
     //     passport.authenticate('local', {

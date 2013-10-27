@@ -13,8 +13,11 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
         $scope.commentPageIndex = []
         $scope.commentPageCount =[]
         $scope.loadingPhoto = {}
+        $scope.loadingPhotoOp = {}
         $scope.loadingComment = {}
         $scope.loadingCommentOp = {}
+        $scope.plused={}
+        $scope.minused={}
         $scope.$watch('currentPhotoIndex', function(index) {
             if (index >= 0 && index < $scope.photos.items.length) {
                 $scope.currentCommentPageIndex = 0
@@ -121,13 +124,13 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
         }
 
         var dealWithPhoto = function(key,id){
-            if($scope.loadingPhoto[id]) return
-            $scope.loadingPhoto[id]=true
+            if($scope.loadingPhotoOp[id]) return
+            $scope.loadingPhotoOp[id]=true
             $http.put('/jphoto/'+id+'/'+key).success(function(data){
                 $scope.currentPhoto[key] = data.op
-                $scope.loadingPhoto[id]=false
+                $scope.loadingPhotoOp[id]=false
             }).error(function(){
-                $scope.loadingPhoto[id]=false
+                $scope.loadingPhotoOp[id]=false
             })
         }
 
@@ -139,11 +142,11 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
         }
         
         $scope.photoPlus1 = function(){
-            $scope.plused = true
+            $scope.plused[$scope.currentPhotoId] = true
             dealWithPhoto('plus1',$scope.currentPhotoId)
         }
         $scope.photoMinus1 = function(){
-            $scope.minused= true
+            $scope.minused[$scope.currentPhotoId]= true
             dealWithPhoto('minus1',$scope.currentPhotoId)
         }
         

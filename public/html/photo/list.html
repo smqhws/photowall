@@ -29,11 +29,11 @@
       <p class="text-left">{{currentPhoto.desc}}</p>
       <div class="row text-right">
         <small class="col-md-12">
-          <a ng-show="!plused && !loadingPhoto[currentPhotoId]" ng-click="photoPlus1()"><span class="glyphicon glyphicon-thumbs-up"/></a>
-          <span ng-show="currentPhoto.plus1 && plused"><span class="glyphicon glyphicon-thumbs-up"/>&nbsp;{{currentPhoto.plus1}}&nbsp;&nbsp;</span>
-          <a ng-show="!minused && !loadingPhoto[currentPhotoId]" ng-click="photoMinus1()"><span class="glyphicon glyphicon-thumbs-down"/></a>
-          <span ng-show="currentPhoto.minus1 && minused"><span class="glyphicon glyphicon-thumbs-down"/>&nbsp;{{currentPhoto.minus1}}&nbsp;&nbsp;</span>
-          <imgloaded ng-show="loadingPhoto[currentPhotoId]" img-src="/img/ajax-loader.gif" img-class="img-responsive"></imgloaded>
+          <a ng-show="!plused[currentPhotoId] && !loadingPhotoOp[currentPhotoId]" ng-click="photoPlus1()"><span class="glyphicon glyphicon-thumbs-up"/></a>
+          <span ng-show="currentPhoto.plus1 && plused[currentPhotoId]"><span class="glyphicon glyphicon-thumbs-up"/>&nbsp;{{currentPhoto.plus1}}&nbsp;&nbsp;</span>
+          <a ng-show="!minused[currentPhotoId] && !loadingPhotoOp[currentPhotoId]" ng-click="photoMinus1()"><span class="glyphicon glyphicon-thumbs-down"/></a>
+          <span ng-show="currentPhoto.minus1[currentPhotoId] && minused"><span class="glyphicon glyphicon-thumbs-down"/>&nbsp;{{currentPhoto.minus1}}&nbsp;&nbsp;</span>
+          <imgloaded ng-show="loadingPhotoOp[currentPhotoId]" img-src="/img/ajax-loader.gif" img-class="img-responsive"></imgloaded>
         </small>
       </div>
     </div>
