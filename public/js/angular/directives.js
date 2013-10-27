@@ -82,7 +82,10 @@ angular.module('photowall.directives', [])
                 link: function(scope, elm, attrs) {
                     var cols = $(elm).find('.pin-col')
                     var width = cols.width()
+                    var errorImg = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
                     scope.pinNumber = 0
+                    scope.wrappers = []
+                    scope.wrappersHide = []
                     scope.setCurrentPhoto = function(index){
                         scope.currentPhotoIndex = index 
                     }
@@ -128,48 +131,48 @@ angular.module('photowall.directives', [])
                     //             maxWidth: width
                     //         })
                     // }
-                    var load = function(fn) {
-                        if (!scope.items )
-                            return
-                        if(scope.pinNumber >= scope.items.length){
-                            scope.status.globalLoading = false
-                            return
-                        }
-                        var index = scope.pinNumber
-                        var min = getMin(cols.toArray())
-                        var wrapper = $('<div class="pin"><a></a></div>')
-                        wrapper.on('click',function(){
-                            scope.$apply(function(){
-                                scope.currentPhotoIndex = index 
-                                $(scope.modalTarget).modal()
-                            })
-                        })
-                        fn(scope.items[index][scope.srcName],
-                            function(img) {
-                                scope.$apply(function(){
-                                    if (img.type === "error") {
-                                        scope.items[index][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
-                                        load(loadImage)
-                                    } else {
-                                        wrapper.append(img)
-                                        min.append(wrapper)
-                                        scope.pinNumber++
-                                        load(loadImage)
-                                    }
-                                })
-                            }, {
-                                maxWidth: width
-                            })
-                    }
+                    // var load = function(fn) {
+                    //     if (!scope.items )
+                    //         return
+                    //     if(scope.pinNumber >= scope.items.length){
+                    //         scope.status.globalLoading = false
+                    //         return
+                    //     }
+                    //     var index = scope.pinNumber
+                    //     console.log(index)
+                    //     var min = getMin(cols.toArray())
+                    //     var wrapper = $('<div class="pin"><a></a></div>')
+                    //     wrapper.on('click',function(){
+                    //         scope.$apply(function(){
+                    //             scope.currentPhotoIndex = index 
+                    //             $(scope.modalTarget).modal()
+                    //         })
+                    //     })
+                    //     fn(scope.items[index][scope.srcName],
+                    //         function(img) {
+                    //             scope.$apply(function(){
+                    //                 if (img.type === "error") {
+                    //                     scope.items[index][scope.srcName] = errorImg
+                    //                     load(loadImage)
+                    //                 } else {
+                    //                     console.log(index,img,wrapper)
+                    //                     wrapper.append(img)
+                    //                     min.append(wrapper)
+                    //                     scope.pinNumber++
+                    //                     load(loadImage)
+                    //                 }
+                    //             })
+                    //         }, {
+                    //             maxWidth: width
+                    //         })
+                    // }
 
                     
 
                     var contains = function(now, old) {
                         var i = 0
-                        if (!old || !now || !now.length)
+                        if (!old || !now || !now.length || !old.length)
                             return false
-                        if (!old.length)
-                            return true
                         for (i = 0; i < old.length; i++) {
                             if (now[i].id !== old[i].id)
                                 break
@@ -177,16 +180,80 @@ angular.module('photowall.directives', [])
                         return i === old.length
                     }
                     scope.$watch('items', function(now, old) {
-                        if (!now || !now.length) {
+                        var arr = now
+                        var startIndex = 0
+                        if (!contains(now, old)) {
                             cols.empty()
-                            scope.pinNumber = 0
-                        } else if (!contains(now, old)) {
-                            cols.empty()
-                            scope.pinNumber = 0
+                            scope.wrappers = []
+                        }else{
+                            arr = now.slice(old.length)
+                            startIndex = old.length
                         }
+                        if(!arr || !arr.length)
+                            return
                         scope.status.globalLoading = true
-                        load(loadImage)
+                        angular.forEach(arr,function(item,index){
+                            var wrapper = $('<div class="pin"><a></a></div>')
+                            wrapper.on('click',function(){
+                                scope.$apply(function(){
+                                    scope.currentPhotoIndex = startIndex+index 
+                                    $(scope.modalTarget).modal()
+                                })
+                            })
+                            loadImage(item[scope.srcName],function(img){
+                                scope.$apply(function(){
+                                    if (img.type === "error") {
+                                        loadImage(errorImg,function(eimg){
+                                            wrapper.append(eimg)
+                                            scope.wrappers.push({dom:wrapper,index:index+startIndex,hide:true})
+                                        },{maxWidth:width})
+                                    } else {
+                                        wrapper.append(img)
+                                        scope.wrappers.push({dom:wrapper,index:index+startIndex,hide:true})
+                                    }
+                                })
+                            },{maxWidth:width})
+                        })
                     }, true)
+                    var getCurrentWrapper = function(arr){
+                        var min = -1
+                        for(var i in arr){
+                            if(arr[i].hide) {
+                                min = i
+                                break
+                            }
+                        }
+                        if(min == -1) return false
+                        for(var i in arr){
+                            if(!arr[i].hide) continue
+                            if(arr[i].index < arr[min].index) min = i
+                        }
+                        if(arr[min].dom){
+                            arr[min].hide = false
+                            console.log(arr[min].index,arr[min].dom)
+                            return arr[min].dom
+                        }
+                        return false
+                    }
+                    var getWrapperCount = function(arr){
+                        var count = 0
+                        for(var i in arr){
+                            if(arr[i].hide)
+                                count++
+                        }
+                        return count
+                    }
+                    scope.$watch('wrappers.length',function(len){
+                        if(!len || !scope.items || !scope.items.length || len!=scope.items.length)
+                            return 
+                        while(getWrapperCount(scope.wrappers)){
+                            var dom = getCurrentWrapper(scope.wrappers)
+                            if(dom) getMin(cols.toArray()).append(dom)
+                        }
+                        scope.status.globalLoading=false
+                        
+
+                    })
 
 
                 }
