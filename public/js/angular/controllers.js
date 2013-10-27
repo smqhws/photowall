@@ -178,7 +178,6 @@ controller('PhotoListCtrl', ['$scope', '$http', 'PhotoScroll','$timeout',
                     
                 if(data.info)
                     $scope.info = data.info
-                console.log(data)
             }).error(function(err){
                 
             })

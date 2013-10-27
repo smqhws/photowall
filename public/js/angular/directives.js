@@ -98,6 +98,36 @@ angular.module('photowall.directives', [])
                         }
                         return $(arr[min])
                     }
+                    // var load = function(fn) {
+                    //     if (!scope.items )
+                    //         return
+                    //     if(scope.pinNumber >= scope.items.length){
+                    //         scope.status.globalLoading = false
+                    //         return
+                    //     }
+                    //     var index = scope.pinNumber
+                    //     var min = getMin(cols.toArray())
+                    //     var wrapper = $('<div class="pin"><a ng-click="setCurrentPhoto(' + index + ')" data-toggle="modal" data-target="' + scope.modalTarget + '"></></div>')
+                    //     fn(scope.items[index][scope.srcName],
+                    //         function(img) {
+                    //             scope.$apply(function(){
+                    //                 if (img.type === "error") {
+                    //                     scope.items[index][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
+                    //                     load(loadImage)
+                    //                 } else {
+                    //                     wrapper.append(img)
+                    //                     $compile(wrapper)(scope,function(wrapperObject){
+                    //                         console.log(index,wrapperObject.find('img'))
+                    //                         min.append(wrapperObject)
+                    //                         scope.pinNumber++
+                    //                         load(loadImage)
+                    //                     })
+                    //                 }
+                    //             })
+                    //         }, {
+                    //             maxWidth: width
+                    //         })
+                    // }
                     var load = function(fn) {
                         if (!scope.items )
                             return
@@ -107,8 +137,13 @@ angular.module('photowall.directives', [])
                         }
                         var index = scope.pinNumber
                         var min = getMin(cols.toArray())
-                        var wrapper = $('<div class="pin"></div>')
-                        var elm = $('<a ng-click="setCurrentPhoto(' + index + ')" data-toggle="modal" data-target="' + scope.modalTarget + '"></>')
+                        var wrapper = $('<div class="pin"><a></a></div>')
+                        wrapper.on('click',function(){
+                            scope.$apply(function(){
+                                scope.currentPhotoIndex = index 
+                                $(scope.modalTarget).modal()
+                            })
+                        })
                         fn(scope.items[index][scope.srcName],
                             function(img) {
                                 scope.$apply(function(){
@@ -116,13 +151,10 @@ angular.module('photowall.directives', [])
                                         scope.items[index][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
                                         load(loadImage)
                                     } else {
-                                        elm.append(img)
-                                        wrapper.append(elm)
-                                        var wrapperObject = $compile(wrapper)(scope,function(wrapperObject){
-                                            min.append(wrapperObject)
-                                            scope.pinNumber++
-                                            load(loadImage)
-                                        })
+                                        wrapper.append(img)
+                                        min.append(wrapper)
+                                        scope.pinNumber++
+                                        load(loadImage)
                                     }
                                 })
                             }, {
