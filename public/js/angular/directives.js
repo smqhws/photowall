@@ -66,8 +66,8 @@ angular.module('photowall.directives', [])
             }
         }
     ])
-    .directive('pinerest', ['$compile',
-        function($compile) {
+    .directive('pinerest', ['$compile','$timeout',
+        function($compile,$timeout) {
             return {
                 restrict: 'EA',
                 replace: true,
@@ -106,19 +106,20 @@ angular.module('photowall.directives', [])
                             return
                         }
                         var index = scope.pinNumber
+                        var min = getMin(cols.toArray())
+                        var wrapper = $('<div class="pin"></div>')
+                        var elm = $('<a ng-click="setCurrentPhoto(' + index + ')" data-toggle="modal" data-target="' + scope.modalTarget + '"></>')
                         fn(scope.items[index][scope.srcName],
                             function(img) {
                                 scope.$apply(function(){
                                     if (img.type === "error") {
-                                    scope.items[index][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
-                                    load(loadImage)
+                                        scope.items[index][scope.srcName] = 'http://www.placehold.it/320x480/EFEFEF/AAAAAA&text=image + load+ error'
+                                        load(loadImage)
                                     } else {
-                                        var wrapper = $('<div class="pin"></div>')
-                                        var elm = $('<a ng-click="setCurrentPhoto(' + index + ')" data-toggle="modal" data-target="' + scope.modalTarget + '"></>')
                                         elm.append(img)
                                         wrapper.append(elm)
                                         var wrapperObject = $compile(wrapper)(scope,function(wrapperObject){
-                                            getMin(cols.toArray()).append(wrapperObject)
+                                            min.append(wrapperObject)
                                             scope.pinNumber++
                                             load(loadImage)
                                         })
